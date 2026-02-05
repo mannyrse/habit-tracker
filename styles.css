@@ -44,7 +44,6 @@ thead tr:first-child th {
     border-top: 1px solid black;
 }
 
-
 /* Sticky first column */
 .habit-col,
 tbody td:first-child {
@@ -56,4 +55,33 @@ tbody td:first-child {
     width: 140px;
     min-width: 140px;
     text-align: left;
+}
+
+/* day cell styling */
+
+.day-cell {
+    cursor: pointer;
+}
+
+.day-cell:hover {
+    background: #f0f0f0;
+}
+
+.day-cell.checked {
+    background: #4caf50;
+}
+
+/* user input styling */
+
+.habit-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+.habit-text {
+    display: block;
+    width: 100%;
+    cursor: pointer;
 }

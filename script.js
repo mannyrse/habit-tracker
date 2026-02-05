@@ -22,12 +22,54 @@ document.addEventListener('DOMContentLoaded', () => {
 function addRow(tableBody) {
     const days = document.querySelectorAll('#daysRow th').length - 1;
 
-
     const newRow = document.createElement('tr');
+
+    let checkboxes = '';
+    for (let i = 0; i < days; i++) {
+        checkboxes += `<td class="day-cell"></td>`;
+    }
     newRow.innerHTML = `
-        <td><input type="text" placeholder="Enter Habit"></td>
-        ${'<td><input type="checkbox"></td>'.repeat(days)}
+        <td class="habit-cell"><input type="text" class="habit-input" placeholder="Enter Habit"></td>
+        ${checkboxes}
     `;
 
     tableBody.appendChild(newRow);
 }
+
+document.getElementById('tableBody').addEventListener('click', (e) => {
+    const cell = e.target.closest('.day-cell');
+    if (!cell) return;
+
+    cell.classList.toggle('checked');
+})
+
+// press enter to lock in habit
+
+document.getElementById('tableBody').addEventListener('keydown', (e) => {
+    if (!e.target.classList.contains('habit-input')) return;
+
+    if (e.key === 'Enter') {
+        const input = e.target;
+        const value = input.value.trim();
+        if (!value) return;
+
+        const td = input.closest('.habit-cell');
+        td.innerHTML = `<span class="habit-text">${value}</span>`;
+    }
+});
+
+// double click to edit
+
+document.getElementById('tableBody').addEventListener('dblclick', (e) => {
+    if (!e.target.classList.contains('habit-text')) return;
+
+    const span = e.target;
+    const td = span.closest('.habit-cell');
+    const currentText = span.textContent;
+
+    td.innerHTML = `
+        <input type="text" class="habit-input" value="${currentText}">
+    `;
+
+    td.querySelector('input').focus();
+})
