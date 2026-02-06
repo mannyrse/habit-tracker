@@ -34,6 +34,17 @@ td {
     min-width: 60px;
 }
 
+/* weekday style */
+.weekday {
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.date-number {
+    font-size: 16px;
+    font-weight: bold;
+}
+
 /* left & top edges of table */
 tr th:first-child,
 tr td:first-child {

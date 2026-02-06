@@ -1,9 +1,18 @@
 function generateDays(days) {
     const row = document.getElementById('daysRow');
 
+    // start on monday for now - day of week
+    const weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     for (let i = 1; i <= days; i++) {
         const th = document.createElement('th');
-        th.textContent = i;
+
+        const dayLetter = weekdays[(i - 1) % 7];
+
+        th.innerHTML = `
+            <div class="weekday">${dayLetter}</div>
+            <div class="date-number">${i}</div>
+        `;
+
         row.appendChild(th);
     }
 }
@@ -35,6 +44,8 @@ function addRow(tableBody) {
 
     tableBody.appendChild(newRow);
 }
+
+// checkbox
 
 document.getElementById('tableBody').addEventListener('click', (e) => {
     const cell = e.target.closest('.day-cell');
