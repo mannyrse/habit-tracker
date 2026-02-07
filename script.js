@@ -25,7 +25,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('tableBody');
     const addHabitBtn = document.getElementById('add-habit');
 
-    addHabitBtn.addEventListener('click', () => addRow(tableBody));
+    addHabitBtn.addEventListener('click', () => {
+        // require users to input habit before being able to add a new row
+        const unfinished = document.querySelector('.habit-input');
+        if (unfinished) {
+            unfinished.classList.add('invalid');
+            unfinished.placeholder = "Enter a habit first";
+            unfinished.focus();
+
+            unfinished.addEventListener('input', () => {
+                unfinished.classList.remove('invalid');
+                unfinished.placeholder = "Enter habit";
+            }, { once: true })
+            return;
+        }
+
+        addRow(tableBody);
+    });
+
 });
 
 function addRow(tableBody) {
