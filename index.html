@@ -10,24 +10,34 @@
 
 <body>
 
-    <div class="month-header" id="monthHeader"></div>
+    <nav class="navbar">
+        <div class="nav-left">daily marks</div>
+        <div class="nav-right">
+            <a href="#">placeholder</a>
+        </div>
+    </nav>
 
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr id="daysRow">
-                    <th class="habit-col">Habits</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
+    <div class="page-container">
+        <div class="month-header" id="monthHeader"></div>
 
-    <div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr id="daysRow">
+                        <th class="habit-col">Habits</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
         <div>
-            <button id="add-habit">Add Habit</button>
+            <div>
+                <button id="add-habit">Add Habit</button>
+            </div>
         </div>
     </div>
+
 
     <script src="script.js"></script>
 </body>

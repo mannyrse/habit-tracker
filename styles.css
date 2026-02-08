@@ -4,15 +4,18 @@
     font-size: 20px;
     padding: 10px 0;
     position: sticky;
-    top: 0;
+    top: 52px;
     background: white;
     z-index: 10;
+    margin-top: 10px;
 }
 
 /* Only this scrolls */
 .table-wrapper {
     overflow-x: auto;
     width: 100%;
+    margin-top: 20px;
+    border-right: 1px solid black;
 }
 
 /* Table can be wider than screen */
@@ -21,6 +24,8 @@ table {
     border-spacing: 0;
     width: max-content;
     min-width: 100%;
+    /* prevent overscroll from showing whitespace */
+    overscroll-behavior-x: none;
 }
 
 th,
@@ -32,6 +37,12 @@ td {
     text-align: center;
     width: 60px;
     min-width: 60px;
+}
+
+th:last-child,
+td:last-child {
+    /* remove the border from the last cell */
+    border-right: none;
 }
 
 /* weekday style */
@@ -118,4 +129,35 @@ tbody td:first-child {
 
 .habit-input.invalid::placeholder {
     color: #e53935
+}
+
+/* navbar styles */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 12px 24px;
+}
+
+.nav-left {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.nav-right a {
+    text-decoration: none;
+    color: black;
+    font-size: 14px;
+}
+
+/* styling for main page content */
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 24px 40px 24px;
 }
