@@ -62,11 +62,30 @@ function addRow(tableBody) {
     tableBody.appendChild(newRow);
 }
 
-// checkbox
+// checkbox - can only be checked if habit is entered
 
 document.getElementById('tableBody').addEventListener('click', (e) => {
     const cell = e.target.closest('.day-cell');
     if (!cell) return;
+
+    const row = cell.closest('tr');
+    const habitCell = row.querySelector('.habit-cell');
+
+
+    const habitText = habitCell.querySelector('.habit-text');
+    if (!habitText) {
+        const input = habitCell.querySelector('.habit-input');
+        input.classList.add('invalid');
+        input.placeholder = "Enter a habit first";
+        input.focus();
+
+        input.addEventListener('input', () => {
+            input.classList.remove('invalid');
+            input.placeholder = "Enter habit";
+        }, { once: true });
+
+        return;
+    }
 
     cell.classList.toggle('checked');
 })

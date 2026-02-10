@@ -1,10 +1,23 @@
+* {
+    font-family: Inter;
+}
+
+body {
+    margin: 0;
+
+    /* background: url("background.png") no-repeat center center fixed;
+    background-size: cover; */
+}
+
+:root {
+    --grid: #7e7e7e;
+}
+
 .month-header {
     text-align: center;
     font-weight: bold;
     font-size: 20px;
     padding: 10px 0;
-    position: sticky;
-    top: 52px;
     background: white;
     z-index: 10;
     margin-top: 10px;
@@ -15,7 +28,7 @@
     overflow-x: auto;
     width: 100%;
     margin-top: 20px;
-    border-right: 1px solid black;
+    border-right: 1px solid var(--grid);
 }
 
 /* Table can be wider than screen */
@@ -30,8 +43,8 @@ table {
 
 th,
 td {
-    border-right: 1px solid black;
-    border-bottom: 1px solid black;
+    border-right: 1px solid var(--grid);
+    border-bottom: 1px solid var(--grid);
     padding: 10px;
     white-space: nowrap;
     text-align: center;
@@ -39,10 +52,26 @@ td {
     min-width: 60px;
 }
 
+table,
+th,
+td {
+    border-color: var(--grid);
+}
+
 th:last-child,
 td:last-child {
     /* remove the border from the last cell */
     border-right: none;
+}
+
+/* left & top edges of table */
+tr th:first-child,
+tr td:first-child {
+    border-left: 1px solid var(--grid);
+}
+
+thead tr:first-child th {
+    border-top: 1px solid var(--grid);
 }
 
 /* weekday style */
@@ -54,16 +83,6 @@ td:last-child {
 .date-number {
     font-size: 16px;
     font-weight: bold;
-}
-
-/* left & top edges of table */
-tr th:first-child,
-tr td:first-child {
-    border-left: 1px solid black;
-}
-
-thead tr:first-child th {
-    border-top: 1px solid black;
 }
 
 /* Sticky first column */
@@ -108,6 +127,7 @@ tbody td:first-child {
 
     white-space: normal;
     word-break: break-word;
+    font-family: inherit;
 }
 
 .habit-text {
@@ -160,4 +180,29 @@ tbody td:first-child {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px 24px 40px 24px;
+}
+
+/* button styling */
+#add-habit {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 20px;
+}
+
+#add-habit:hover {
+    background: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+#add-habit:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(76, 175, 80, 0.3);
 }
