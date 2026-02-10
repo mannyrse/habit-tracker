@@ -45,11 +45,12 @@ th,
 td {
     border-right: 1px solid var(--grid);
     border-bottom: 1px solid var(--grid);
-    padding: 10px;
+    padding: 4px;
     white-space: nowrap;
     text-align: center;
-    width: 60px;
-    min-width: 60px;
+    width: 45px;
+    min-width: 45px;
+    height: 45px;
 }
 
 table,
@@ -76,12 +77,12 @@ thead tr:first-child th {
 
 /* weekday style */
 .weekday {
-    font-size: 12px;
+    font-size: 10px;
     opacity: 0.6;
 }
 
 .date-number {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
 }
 
@@ -93,13 +94,13 @@ tbody td:first-child {
     z-index: 5;
     background: white;
 
-    width: 140px;
-    min-width: 140px;
+    width: 120px;
+    min-width: 120px;
     text-align: left;
 
     /* make the text wrap nicely */
     white-space: normal;
-    max-width: 180px;
+    max-width: 160px;
     word-break: break-word;
 }
 
@@ -107,14 +108,26 @@ tbody td:first-child {
 
 .day-cell {
     cursor: pointer;
+    position: relative;
 }
 
-.day-cell:hover {
-    background: #f0f0f0;
+.day-cell:hover:not(.checked)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* temp image for stamp */
+    background: url('ok.png') no-repeat center center;
+    background-size: contain;
+    filter: grayscale(100%) opacity(0.3);
+    pointer-events: none;
 }
 
 .day-cell.checked {
-    background: #4caf50;
+    background: url('ok.png') no-repeat center center;
+    background-size: contain;
 }
 
 /* user input styling */
@@ -123,7 +136,7 @@ tbody td:first-child {
     width: 100%;
     border: none;
     outline: none;
-    font-size: 14px;
+    font-size: 13px;
 
     white-space: normal;
     word-break: break-word;
