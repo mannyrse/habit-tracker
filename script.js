@@ -17,10 +17,15 @@ function generateDays(days) {
     }
 }
 
-document.getElementById('monthHeader').textContent = "February"
+document.getElementById('monthHeader').innerHTML = `February<div class="month-year">2026</div>`;
 
 document.addEventListener('DOMContentLoaded', () => {
     generateDays(28);
+
+    const emptyState = document.createElement('tr');
+    emptyState.id = 'empty-state';
+    emptyState.innerHTML = `<td colspan="999">Start tracking your daily habits - click <strong>Add Habit</strong> to begin.</td>`;
+    document.getElementById('tableBody').appendChild(emptyState);
 
     const tableBody = document.getElementById('tableBody');
     const addHabitBtn = document.getElementById('add-habit');
@@ -46,6 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function addRow(tableBody) {
+    const empty = document.getElementById('empty-state');
+    if (empty) empty.remove();
     const days = document.querySelectorAll('#daysRow th').length - 1;
 
     const newRow = document.createElement('tr');

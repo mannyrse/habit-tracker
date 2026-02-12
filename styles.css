@@ -23,6 +23,13 @@ body {
     margin-top: 10px;
 }
 
+.month-year {
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
 /* Only this scrolls */
 .table-wrapper {
     overflow-x: auto;
@@ -218,4 +225,13 @@ tbody td:first-child {
 #add-habit:active {
     transform: translateY(0);
     box-shadow: 0 1px 4px rgba(76, 175, 80, 0.3);
+}
+
+#empty-state td {
+    text-align: center;
+    color: #aaa;
+    font-size: 14px;
+    padding: 32px;
+    font-style: italic;
+    cursor: default;
 }
