@@ -9,6 +9,11 @@ body {
     background-size: cover; */
 }
 
+html,
+body {
+    overscroll-behavior-x: none;
+}
+
 :root {
     --grid: #7e7e7e;
 }
@@ -36,6 +41,7 @@ body {
     width: 100%;
     margin-top: 20px;
     border-right: 1px solid var(--grid);
+    overscroll-behavior-x: none;
 }
 
 /* Table can be wider than screen */
@@ -81,6 +87,11 @@ tr td:first-child {
 thead tr:first-child th {
     border-top: 1px solid var(--grid);
 }
+
+thead th:first-child {
+    text-align: center;
+}
+
 
 /* weekday style */
 .weekday {
@@ -227,11 +238,21 @@ tbody td:first-child {
     box-shadow: 0 1px 4px rgba(76, 175, 80, 0.3);
 }
 
-#empty-state td {
+#empty-state {
     text-align: center;
     color: #aaa;
     font-size: 14px;
     padding: 32px;
     font-style: italic;
-    cursor: default;
+    border: 1px solid var(--grid);
+    border-top: none;
+    border-right: none;
+    box-sizing: border-box;
+
+    position: sticky;
+    left: 0;
+
+    width: 100%;
+    background: white;
+    z-index: 6;
 }

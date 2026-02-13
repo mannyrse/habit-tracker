@@ -22,10 +22,10 @@ document.getElementById('monthHeader').innerHTML = `February<div class="month-ye
 document.addEventListener('DOMContentLoaded', () => {
     generateDays(28);
 
-    const emptyState = document.createElement('tr');
+    const emptyState = document.createElement('div');
     emptyState.id = 'empty-state';
-    emptyState.innerHTML = `<td colspan="999">Start tracking your daily habits - click <strong>Add Habit</strong> to begin.</td>`;
-    document.getElementById('tableBody').appendChild(emptyState);
+    emptyState.innerHTML = `Start tracking your daily habits - click <strong>Add Habit</strong> to begin.`;
+    document.querySelector('.table-wrapper').appendChild(emptyState);
 
     const tableBody = document.getElementById('tableBody');
     const addHabitBtn = document.getElementById('add-habit');
