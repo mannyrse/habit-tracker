@@ -215,27 +215,25 @@ tbody td:first-child {
 
 /* button styling */
 #add-habit {
-    background: #4caf50;
-    color: white;
+    background: #2c2820;
+    color: #fffef9;
     border: none;
-    padding: 12px 24px;
-    font-size: 14px;
+    padding: 11px 22px;
+    font-size: 13px;
     font-weight: 500;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s ease;
-    margin-top: 20px;
+    margin-top: 16px;
 }
 
 #add-habit:hover {
-    background: #45a049;
+    opacity: .85;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
 
 #add-habit:active {
     transform: translateY(0);
-    box-shadow: 0 1px 4px rgba(76, 175, 80, 0.3);
 }
 
 #empty-state {
