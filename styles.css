@@ -4,6 +4,7 @@
 
 body {
     margin: 0;
+    background: #f5f2eb;
 
     /* background: url("background.png") no-repeat center center fixed;
     background-size: cover; */
@@ -23,7 +24,6 @@ body {
     font-weight: bold;
     font-size: 20px;
     padding: 10px 0;
-    background: white;
     z-index: 10;
     margin-top: 10px;
 }
@@ -52,6 +52,7 @@ table {
     min-width: 100%;
     /* prevent overscroll from showing whitespace */
     overscroll-behavior-x: none;
+    background: #fffef9;
 }
 
 th,
@@ -86,10 +87,17 @@ tr td:first-child {
 
 thead tr:first-child th {
     border-top: 1px solid var(--grid);
+    background: #fffef9;
 }
 
 thead th:first-child {
-    text-align: center;
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a8070;
 }
 
 
@@ -110,7 +118,7 @@ tbody td:first-child {
     position: sticky;
     left: 0;
     z-index: 5;
-    background: white;
+    background: #fffef9;
 
     width: 120px;
     min-width: 120px;
@@ -120,6 +128,7 @@ tbody td:first-child {
     white-space: normal;
     max-width: 160px;
     word-break: break-word;
+    padding: 8px 14px;
 }
 
 /* day cell styling */
@@ -155,6 +164,7 @@ tbody td:first-child {
     border: none;
     outline: none;
     font-size: 13px;
+    background: #fffef9;
 
     white-space: normal;
     word-break: break-word;
@@ -163,7 +173,8 @@ tbody td:first-child {
 
 .habit-text {
     display: block;
-    width: 100%;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
 
     white-space: normal;
@@ -175,7 +186,8 @@ tbody td:first-child {
 
 .habit-input.invalid {
     border: 2px solid #e53935;
-    background: #ffecec;
+    background: #fffef9;
+
 }
 
 .habit-input.invalid::placeholder {
@@ -239,6 +251,8 @@ tbody td:first-child {
 #empty-state {
     text-align: center;
     color: #aaa;
+    background: #fffef9;
+
     font-size: 14px;
     padding: 32px;
     font-style: italic;
@@ -251,6 +265,35 @@ tbody td:first-child {
     left: 0;
 
     width: 100%;
-    background: white;
     z-index: 6;
+}
+
+/* shake animation for invalid */
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-4px);
+    }
+
+    40% {
+        transform: translateX(4px);
+    }
+
+    60% {
+        transform: translateX(-3px);
+    }
+
+    80% {
+        transform: translateX(3px);
+    }
+}
+
+.shake {
+    animation: shake 0.35s ease;
 }

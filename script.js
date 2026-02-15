@@ -34,9 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // require users to input habit before being able to add a new row
         const unfinished = document.querySelector('.habit-input');
         if (unfinished) {
-            unfinished.classList.add('invalid');
+            unfinished.classList.add('invalid', 'shake');
             unfinished.placeholder = "Enter a habit first";
             unfinished.focus();
+            unfinished.addEventListener('animationend', () => unfinished.classList.remove('shake'), { once: true });
 
             unfinished.addEventListener('input', () => {
                 unfinished.classList.remove('invalid');
@@ -82,9 +83,10 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
     const habitText = habitCell.querySelector('.habit-text');
     if (!habitText) {
         const input = habitCell.querySelector('.habit-input');
-        input.classList.add('invalid');
+        input.classList.add('invalid', 'shake');
         input.placeholder = "Enter a habit first";
         input.focus();
+        input.addEventListener('animationend', () => input.classList.remove('shake'), { once: true });
 
         input.addEventListener('input', () => {
             input.classList.remove('invalid');
