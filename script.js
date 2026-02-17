@@ -63,7 +63,9 @@ function addRow(tableBody) {
         checkboxes += `<td class="day-cell"></td>`;
     }
     newRow.innerHTML = `
-        <td class="habit-cell"><input type="text" class="habit-input" placeholder="Enter Habit"></td>
+        <td class="habit-cell">
+            <input type="text" class="habit-input" placeholder="Enter Habit">
+        </td>
         ${checkboxes}
     `;
 
@@ -110,7 +112,10 @@ document.getElementById('tableBody').addEventListener('keydown', (e) => {
         if (!value) return;
 
         const td = input.closest('.habit-cell');
-        td.innerHTML = `<span class="habit-text">${value}</span>`;
+        td.innerHTML = `
+            <span class="habit-text">${value}</span>
+            <button class="delete-btn" title="Delete habit">×</button>
+        `;
     }
 });
 
@@ -125,7 +130,25 @@ document.getElementById('tableBody').addEventListener('dblclick', (e) => {
 
     td.innerHTML = `
         <input type="text" class="habit-input" value="${currentText}">
+        <button class="delete-btn" title="Delete habit">×</button>
     `;
 
     td.querySelector('input').focus();
-})
+});
+
+// delete  habit row
+document.getElementById('tableBody').addEventListener('click', (e) => {
+    if (!e.target.classList.contains('delete-btn')) return;
+
+    const row = e.target.closest('tr');
+    row.remove();
+
+    // show empty state if no rows left
+    const remainingRows = document.querySelectorAll('#tableBody tr');
+    if (remainingRows.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.id = 'empty-state';
+        emptyState.innerHTML = `Start tracking your daily habits - click <strong>Add Habit</strong> to begin.`;
+        document.querySelector('.table-wrapper').appendChild(emptyState);
+    }
+});

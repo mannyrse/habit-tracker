@@ -302,3 +302,38 @@ tbody td:first-child {
 .shake {
     animation: shake 0.35s ease;
 }
+
+.delete-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: #c0392b;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: monospace;
+}
+
+.habit-cell {
+    position: relative;
+}
+
+.habit-cell:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    transform: translateY(-50%) scale(1.1);
+    background: #a02d24;
+}
