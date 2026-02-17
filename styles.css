@@ -16,7 +16,10 @@ body {
 }
 
 :root {
-    --grid: #7e7e7e;
+    --grid: #d4d0c8;
+    --paper: #fffef9;
+    --ink: #2c2820;
+    --ink-light: #8a8070;
 }
 
 .month-header {
@@ -40,8 +43,10 @@ body {
     overflow-x: auto;
     width: 100%;
     margin-top: 20px;
-    border-right: 1px solid var(--grid);
     overscroll-behavior-x: none;
+    border: 1px solid var(--grid);
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(44, 40, 32, 0.07);
 }
 
 /* Table can be wider than screen */
@@ -50,44 +55,38 @@ table {
     border-spacing: 0;
     width: max-content;
     min-width: 100%;
-    /* prevent overscroll from showing whitespace */
     overscroll-behavior-x: none;
-    background: #fffef9;
+    background: var(--paper);
 }
 
 th,
 td {
     border-right: 1px solid var(--grid);
     border-bottom: 1px solid var(--grid);
-    padding: 4px;
     white-space: nowrap;
     text-align: center;
-    width: 45px;
-    min-width: 45px;
-    height: 45px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
 }
 
-table,
-th,
-td {
-    border-color: var(--grid);
+thead tr:first-child th {
+    border-top: none;
+    background: var(--paper);
+}
+
+tr th:first-child,
+tr td:first-child {
+    border-left: none;
 }
 
 th:last-child,
 td:last-child {
-    /* remove the border from the last cell */
     border-right: none;
 }
 
-/* left & top edges of table */
-tr th:first-child,
-tr td:first-child {
-    border-left: 1px solid var(--grid);
-}
-
-thead tr:first-child th {
-    border-top: 1px solid var(--grid);
-    background: #fffef9;
+tbody tr:last-child td {
+    border-bottom: none;
 }
 
 thead th:first-child {
@@ -97,19 +96,20 @@ thead th:first-child {
     font-family: 'DM Mono', monospace;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: #8a8070;
+    color: var(--ink-light);
 }
-
 
 /* weekday style */
 .weekday {
-    font-size: 10px;
+    font-size: 9px;
     opacity: 0.6;
 }
 
 .date-number {
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.4;
 }
 
 /* Sticky first column */
@@ -118,13 +118,12 @@ tbody td:first-child {
     position: sticky;
     left: 0;
     z-index: 5;
-    background: #fffef9;
+    background: var(--paper);
 
     width: 120px;
     min-width: 120px;
     text-align: left;
 
-    /* make the text wrap nicely */
     white-space: normal;
     max-width: 160px;
     word-break: break-word;
@@ -132,7 +131,6 @@ tbody td:first-child {
 }
 
 /* day cell styling */
-
 .day-cell {
     cursor: pointer;
     position: relative;
@@ -145,7 +143,6 @@ tbody td:first-child {
     left: 0;
     right: 0;
     bottom: 0;
-    /* temp image for stamp */
     background: url('ok.png') no-repeat center center;
     background-size: contain;
     filter: grayscale(100%) opacity(0.3);
@@ -158,17 +155,22 @@ tbody td:first-child {
 }
 
 /* user input styling */
-
 .habit-input {
     width: 100%;
     border: none;
     outline: none;
     font-size: 13px;
-    background: #fffef9;
+    background: transparent;
+    color: var(--ink);
 
     white-space: normal;
     word-break: break-word;
     font-family: inherit;
+    padding: 2px 0;
+}
+
+.habit-input::placeholder {
+    color: var(--ink-light);
 }
 
 .habit-text {
@@ -176,22 +178,21 @@ tbody td:first-child {
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
+    color: var(--ink);
 
     white-space: normal;
     word-break: break-word;
     line-height: 1.3;
 }
 
-/* styles for require habit text */
-
+/* invalid state */
 .habit-input.invalid {
-    border: 2px solid #e53935;
-    background: #fffef9;
-
+    border-bottom: 2px solid #c0392b;
+    background: transparent;
 }
 
 .habit-input.invalid::placeholder {
-    color: #e53935
+    color: #c0392b;
 }
 
 /* navbar styles */
@@ -205,16 +206,19 @@ tbody td:first-child {
     align-items: center;
 
     padding: 12px 24px;
+    border-bottom: 1px solid var(--grid);
+    background: #f5f2eb;
 }
 
 .nav-left {
     font-weight: bold;
     font-size: 18px;
+    color: var(--ink);
 }
 
 .nav-right a {
     text-decoration: none;
-    color: black;
+    color: var(--ink-light);
     font-size: 14px;
 }
 
@@ -227,16 +231,20 @@ tbody td:first-child {
 
 /* button styling */
 #add-habit {
-    background: #2c2820;
-    color: #fffef9;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--ink);
+    color: var(--paper);
     border: none;
     padding: 11px 22px;
     font-size: 13px;
     font-weight: 500;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: opacity 0.15s, transform 0.15s;
     margin-top: 16px;
+    letter-spacing: 0.2px;
 }
 
 #add-habit:hover {
@@ -250,15 +258,12 @@ tbody td:first-child {
 
 #empty-state {
     text-align: center;
-    color: #aaa;
-    background: #fffef9;
+    color: var(--ink-light);
+    background: var(--paper);
 
     font-size: 14px;
-    padding: 32px;
+    padding: 36px;
     font-style: italic;
-    border: 1px solid var(--grid);
-    border-top: none;
-    border-right: none;
     box-sizing: border-box;
 
     position: sticky;
