@@ -137,6 +137,7 @@ document.getElementById('tableBody').addEventListener('dblclick', (e) => {
 });
 
 // delete  habit row
+
 document.getElementById('tableBody').addEventListener('click', (e) => {
     if (!e.target.classList.contains('delete-btn')) return;
 
