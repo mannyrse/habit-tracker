@@ -42,6 +42,33 @@
         </div>
     </div>
 
+    <!-- stamp popup overlay -->
+    <div class="stamp-overlay" id="stampOverlay">
+        <div class="stamp-popup" id="stampPopup">
+            <div class="stamp-popup-header">
+                <div class="stamp-popup-meta">
+                    <div class="stamp-popup-habit" id="popupHabitName">-</div>
+                    <div class="stamp-popup-date" id="popupDate">-</div>
+                </div>
+                <button class="stamp-popup-close" id="popupClose">✕</button>
+            </div>
+
+            <!-- stamp canvas -->
+            <div class="stamp-canvas-area" id="stampCanvas">
+                <div class="canvas-hint" id="canvasHint">
+                    <div class="hint-icon">💡</div>
+                    <div class="hint-text">Click anywhere to place your stamp</div>
+                </div>
+            </div>
+
+            <!-- actions -->
+            <div class="stamp-popup-actions">
+                <button class="btn-primary" id="popupSave">Save</button>
+                <button class="btn-secondary" id="popupClear">Clear</button>
+                <button class="btn-danger" id="popupDelete">Remove</button>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
