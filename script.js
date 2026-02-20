@@ -19,6 +19,9 @@ function generateDays(days) {
 
 document.getElementById('monthHeader').innerHTML = `February<div class="month-year">2026</div>`;
 
+// stamp mode: 'simple' or 'manual'
+let stampMode = 'manual'; // default to manual (popup) mode
+
 document.addEventListener('DOMContentLoaded', () => {
     generateDays(28);
 
@@ -29,6 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tableBody = document.getElementById('tableBody');
     const addHabitBtn = document.getElementById('add-habit');
+
+    // stamp mode toggle
+    const modeToggle = document.getElementById('stamp-mode-toggle');
+    modeToggle.addEventListener('click', () => {
+        stampMode = stampMode === 'simple' ? 'manual' : 'simple';
+        modeToggle.textContent = stampMode === 'simple' ? 'Switch to Manual Mode' : 'Switch to Simple Mode';
+    });
 
     addHabitBtn.addEventListener('click', () => {
         // require users to input habit before being able to add a new row
@@ -141,7 +151,7 @@ const overlay = document.getElementById('stampOverlay');
 const canvas = document.getElementById('stampCanvas');
 const hint = document.getElementById('canvasHint');
 
-// click cell -> open popup
+// click cell -> toggle stamp (simple mode) or open popup (manual mode)
 document.getElementById('tableBody').addEventListener('click', (e) => {
     const cell = e.target.closest('.day-cell');
     if (!cell) return;
@@ -165,7 +175,25 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
         return;
     }
 
-    openStampPopup(cell, habitText.textContent);
+    // simple mode: just toggle centered stamp
+    if (stampMode === 'simple') {
+        const cellKey = cell.dataset.row + '_' + cell.dataset.day;
+
+        if (cellData.has(cellKey)) {
+            // remove stamp
+            cellData.delete(cellKey);
+            renderCellStamp(cell, null);
+        } else {
+            // add centered stamp
+            const centeredStamp = { x: 50, y: 50 };
+            cellData.set(cellKey, centeredStamp);
+            renderCellStamp(cell, centeredStamp);
+        }
+    }
+    // manual mode: open popup
+    else {
+        openStampPopup(cell, habitText.textContent);
+    }
 });
 
 function openStampPopup(cell, habitName) {
