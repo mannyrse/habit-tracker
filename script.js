@@ -1,29 +1,51 @@
-function generateDays(days) {
+// get current date info
+const now = new Date();
+const YEAR = now.getFullYear();
+const MONTH = now.getMonth(); // 0-11
+const TODAY = now.getDate();
+const DAYS_IN_MONTH = new Date(YEAR, MONTH + 1, 0).getDate();
+const FIRST_DOW = new Date(YEAR, MONTH, 1).getDay();
+
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+function generateDays() {
     const row = document.getElementById('daysRow');
 
-    // start on monday for now - day of week
-    const weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    for (let i = 1; i <= days; i++) {
+    for (let day = 1; day <= DAYS_IN_MONTH; day++) {
         const th = document.createElement('th');
+        const dow = (FIRST_DOW + day - 1) % 7;
 
-        const dayLetter = weekdays[(i - 1) % 7];
+        // add 'today' class if this is today's date
+        const isToday = day === TODAY;
+        th.className = isToday ? 'today' : '';
 
         th.innerHTML = `
-            <div class="weekday">${dayLetter}</div>
-            <div class="date-number">${i}</div>
+            <div class="weekday">${WEEKDAYS[dow]}</div>
+            <div class="date-number">${day}</div>
         `;
 
         row.appendChild(th);
     }
+
+    // scroll to today's date
+    setTimeout(() => {
+        const todayHeader = document.querySelector('th.today');
+        if (todayHeader) {
+            todayHeader.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    }, 100);
 }
 
-document.getElementById('monthHeader').innerHTML = `February<div class="month-year">2026</div>`;
+// set month header
+document.getElementById('monthHeader').innerHTML = `${MONTH_NAMES[MONTH]}<div class="month-year">${YEAR}</div>`;
 
 // stamp mode: 'simple' or 'manual'
 let stampMode = 'manual'; // default to manual (popup) mode
 
 document.addEventListener('DOMContentLoaded', () => {
-    generateDays(28);
+    generateDays();
 
     const emptyState = document.createElement('div');
     emptyState.id = 'empty-state';
@@ -64,14 +86,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function addRow(tableBody) {
     const empty = document.getElementById('empty-state');
     if (empty) empty.remove();
-    const days = document.querySelectorAll('#daysRow th').length - 1;
 
     const rowId = 'row-' + Date.now();
     const newRow = document.createElement('tr');
     newRow.id = rowId;
 
     let checkboxes = '';
-    for (let i = 1; i <= days; i++) {
+    for (let i = 1; i <= DAYS_IN_MONTH; i++) {
         checkboxes += `<td class="day-cell" data-day="${i}" data-row="${rowId}"></td>`;
     }
     newRow.innerHTML = `
@@ -306,7 +327,13 @@ function saveAndClose() {
 function renderCellStamp(cell, stamp) {
     // clear old
     cell.querySelectorAll('.cell-stamp').forEach(s => s.remove());
-    if (!stamp) return;
+
+    if (!stamp) {
+        cell.classList.remove('has-stamp');
+        return;
+    }
+
+    cell.classList.add('has-stamp');
 
     const el = document.createElement('div');
     el.className = 'cell-stamp';
