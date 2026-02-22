@@ -1,10 +1,10 @@
-// get current date info
+// Get current date info
 const now = new Date();
 const YEAR = now.getFullYear();
 const MONTH = now.getMonth(); // 0-11
 const TODAY = now.getDate();
 const DAYS_IN_MONTH = new Date(YEAR, MONTH + 1, 0).getDate();
-const FIRST_DOW = new Date(YEAR, MONTH, 1).getDay();
+const FIRST_DOW = new Date(YEAR, MONTH, 1).getDay(); // 0=Sunday, 6=Saturday
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
@@ -17,7 +17,7 @@ function generateDays() {
         const th = document.createElement('th');
         const dow = (FIRST_DOW + day - 1) % 7;
 
-        // add 'today' class if this is today's date
+        // Add 'today' class if this is today's date
         const isToday = day === TODAY;
         th.className = isToday ? 'today' : '';
 
@@ -54,6 +54,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tableBody = document.getElementById('tableBody');
     const addHabitBtn = document.getElementById('add-habit');
+
+    // settings dropdown
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsMenu = document.getElementById('settingsMenu');
+    const settingsOverlay = document.getElementById('settingsOverlay');
+    const openSettingsBtn = document.getElementById('openSettings');
+    const settingsCloseBtn = document.getElementById('settingsClose');
+
+    settingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsMenu.classList.toggle('open');
+    });
+
+    // close dropdown when clicking outside
+    document.addEventListener('click', () => {
+        settingsMenu.classList.remove('open');
+    });
+
+    // open settings menu
+    openSettingsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        settingsMenu.classList.remove('open');
+        settingsOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    });
+
+    // close settings menu
+    settingsCloseBtn.addEventListener('click', (e) => {
+        settingsOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+    });
+
+    // close settings on overlay click
+    settingsOverlay.addEventListener('click', (e) => {
+        if (e.target === settingsOverlay) {
+            settingsOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    });
 
     // stamp mode toggle
     const modeToggle = document.getElementById('stamp-mode-toggle');
@@ -116,10 +155,20 @@ document.getElementById('tableBody').addEventListener('keydown', (e) => {
         if (!value) return;
 
         const td = input.closest('.habit-cell');
-        td.innerHTML = `
-            <span class="habit-text">${value}</span>
-            <button class="delete-btn" title="Delete habit">×</button>
-        `;
+        // clear cell safely - fixed xss issue
+        td.innerHTML = '';
+
+        const span = document.createElement('span');
+        span.className = 'habit-text';
+        span.textContent = value;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.title = 'Delete habit';
+        deleteBtn.textContent = '×';
+
+        td.appendChild(span);
+        td.appendChild(deleteBtn);
     }
 });
 
@@ -132,12 +181,23 @@ document.getElementById('tableBody').addEventListener('dblclick', (e) => {
     const td = span.closest('.habit-cell');
     const currentText = span.textContent;
 
-    td.innerHTML = `
-        <input type="text" class="habit-input" value="${currentText}">
-        <button class="delete-btn" title="Delete habit">×</button>
-    `;
+    td.innerHTML = '';
 
-    td.querySelector('input').focus();
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'habit-input';
+    input.value = currentText;
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.title = 'Delete habit';
+    deleteBtn.textContent = '×';
+
+    td.appendChild(input);
+    td.appendChild(deleteBtn);
+
+    input.focus();
+
 });
 
 // delete habit row

@@ -18,7 +18,12 @@
     <nav class="navbar">
         <div class="nav-left">daily marks</div>
         <div class="nav-right">
-            <a href="#">placeholder</a>
+            <div class="settings-dropdown">
+                <button class="settings-btn" id="settingsBtn">Welcome ▾</button>
+                <div class="dropdown-menu" id="settingsMenu">
+                    <a href="#" class="dropdown-item" id="openSettings">⚙️ Settings</a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -36,9 +41,25 @@
             </table>
         </div>
         <div>
-            <div>
-                <button id="add-habit">+ Add Habit</button>
-                <button id="stamp-mode-toggle" class="btn-secondary">Switch to Simple Mode</button>
+            <button id="add-habit">+ Add Habit</button>
+        </div>
+    </div>
+    </div>
+
+    <!-- settings popup modal -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-popup">
+            <div class="settings-popup-header">
+                <h3>Settings</h3>
+                <button class="settings-popup-close" id="settingsClose">✕</button>
+            </div>
+            <div class="settings-popup-content">
+                <div class="setting-item">
+                    <label>Stamp Mode</label>
+                    <button id="stamp-mode-toggle" class="btn-secondary">Switch to Simple Mode</button>
+                    <p class="setting-description">Simple mode: Click to instantly toggle stamp. Manual mode: Open popup
+                        to place stamp precisely.</p>
+                </div>
             </div>
         </div>
     </div>
