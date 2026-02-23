@@ -437,6 +437,28 @@ tbody td:first-child {
     z-index: 6;
 }
 
+/* chart section */
+.chart-section {
+    margin-top: 48px;
+    background: var(--paper);
+    border: 1px solid var(--grid);
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(44, 40, 32, 0.07);
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 20px 0;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
 /* shake animation for invalid */
 
 @keyframes shake {

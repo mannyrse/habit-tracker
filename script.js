@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // close settings menu
-    settingsCloseBtn.addEventListener('click', (e) => {
+    settingsCloseBtn.addEventListener('click', () => {
         settingsOverlay.classList.remove('open');
         document.body.style.overflow = '';
     });
@@ -270,6 +270,8 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
             cellData.set(cellKey, centeredStamp);
             renderCellStamp(cell, centeredStamp);
         }
+
+        updateChart(); // update chart when stamp changes
     }
     // manual mode: open popup
     else {
@@ -381,6 +383,7 @@ function saveAndClose() {
         renderCellStamp(currentCell, currentStamp);
     }
 
+    updateChart(); // update chart when stamp changes
     closePopup();
 }
 
@@ -414,4 +417,126 @@ function renderCellStamp(cell, stamp) {
 // escape to close
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && overlay.classList.contains('open')) closePopup();
+});
+
+// progress chart 
+
+let progressChart = null;
+
+function initChart() {
+    const ctx = document.getElementById('progressChart').getContext('2d');
+
+    progressChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: DAYS_IN_MONTH }, (_, i) => i + 1),
+            datasets: [{
+                label: 'Habits Completed',
+                data: [],
+                borderColor: '#2c2820',
+                backgroundColor: 'rgba(44, 40, 32, 0.1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#2c2820',
+                pointBorderColor: '#fffef9',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#2c2820',
+                    titleColor: '#fffef9',
+                    bodyColor: '#fffef9',
+                    padding: 12,
+                    borderColor: '#d4d0c8',
+                    borderWidth: 1,
+                    displayColors: false,
+                    callbacks: {
+                        title: (context) => `Day ${context[0].label}`,
+                        label: (context) => `${context.parsed.y} habit${context.parsed.y !== 1 ? 's' : ''} completed`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Day of Month',
+                        color: '#8a8070',
+                        font: {
+                            size: 12,
+                            family: 'Inter'
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(212, 208, 200, 0.3)'
+                    },
+                    ticks: {
+                        color: '#8a8070',
+                        font: {
+                            family: 'Inter'
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Habits Completed',
+                        color: '#8a8070',
+                        font: {
+                            size: 12,
+                            family: 'Inter'
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(212, 208, 200, 0.3)'
+                    },
+                    ticks: {
+                        color: '#8a8070',
+                        stepSize: 1,
+                        font: {
+                            family: 'Inter'
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    updateChart();
+}
+
+function updateChart() {
+    if (!progressChart) return;
+
+    // count completed habits per day
+    const dailyCounts = new Array(DAYS_IN_MONTH).fill(0);
+
+    // iterate through all stamps in cellData
+    cellData.forEach((stamp, cellKey) => {
+        // cellKey format: "row-timestamp_dayNumber"
+        const day = parseInt(cellKey.split('_')[1]);
+        if (day >= 1 && day <= DAYS_IN_MONTH) {
+            dailyCounts[day - 1]++;
+        }
+    });
+
+    // update chart data
+    progressChart.data.datasets[0].data = dailyCounts;
+    progressChart.update();
+}
+
+// initialize chart on page load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initChart, 200);
 });
