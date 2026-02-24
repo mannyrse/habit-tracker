@@ -3,22 +3,41 @@ const now = new Date();
 const YEAR = now.getFullYear();
 const MONTH = now.getMonth(); // 0-11
 const TODAY = now.getDate();
-const DAYS_IN_MONTH = new Date(YEAR, MONTH + 1, 0).getDate();
-const FIRST_DOW = new Date(YEAR, MONTH, 1).getDay(); // 0=Sunday, 6=Saturday
+
+// current view state (can be different from actual current date)
+let viewYear = YEAR;
+let viewMonth = MONTH;
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
+function getDaysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+}
+
+function getFirstDayOfWeek(year, month) {
+    return new Date(year, month, 1).getDay();
+}
+
 function generateDays() {
     const row = document.getElementById('daysRow');
 
-    for (let day = 1; day <= DAYS_IN_MONTH; day++) {
-        const th = document.createElement('th');
-        const dow = (FIRST_DOW + day - 1) % 7;
+    // clear existing day headers (keep the "Habits" header)
+    while (row.children.length > 1) {
+        row.removeChild(row.lastChild);
+    }
 
-        // Add 'today' class if this is today's date
-        const isToday = day === TODAY;
+    const daysInMonth = getDaysInMonth(viewYear, viewMonth);
+    const firstDOW = getFirstDayOfWeek(viewYear, viewMonth);
+    const isCurrentMonth = (viewYear === YEAR && viewMonth === MONTH);
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const th = document.createElement('th');
+        const dow = (firstDOW + day - 1) % 7;
+
+        // only highlight today if viewing current month
+        const isToday = isCurrentMonth && day === TODAY;
         th.className = isToday ? 'today' : '';
 
         th.innerHTML = `
@@ -29,17 +48,108 @@ function generateDays() {
         row.appendChild(th);
     }
 
-    // scroll to today's date
-    setTimeout(() => {
-        const todayHeader = document.querySelector('th.today');
-        if (todayHeader) {
-            todayHeader.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-    }, 100);
+    // scroll to today only if viewing current month
+    if (isCurrentMonth) {
+        setTimeout(() => {
+            const todayHeader = document.querySelector('th.today');
+            if (todayHeader) {
+                todayHeader.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        }, 100);
+    }
 }
 
-// set month header
-document.getElementById('monthHeader').innerHTML = `${MONTH_NAMES[MONTH]}<div class="month-year">${YEAR}</div>`;
+function updateMonthHeader() {
+    document.getElementById('monthHeader').innerHTML =
+        `${MONTH_NAMES[viewMonth]}<div class="month-year">${viewYear}</div>`;
+}
+
+function regenerateTable() {
+    const tableBody = document.getElementById('tableBody');
+    const existingRows = tableBody.querySelectorAll('tr');
+    const daysInMonth = getDaysInMonth(viewYear, viewMonth);
+    const currentMonthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
+
+    let visibleRowCount = 0;
+
+    existingRows.forEach(row => {
+        const rowMonthKey = row.dataset.month;
+
+        if (rowMonthKey === currentMonthKey) {
+            row.style.display = '';
+            visibleRowCount++;
+
+            const dayCells = row.querySelectorAll('.day-cell');
+            dayCells.forEach(cell => cell.remove());
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const td = document.createElement('td');
+                td.className = 'day-cell';
+                td.dataset.day = i;
+                td.dataset.row = row.id;
+                row.appendChild(td);
+            }
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    const emptyState = document.getElementById('empty-state');
+    if (visibleRowCount === 0) {
+        if (!emptyState) {
+            const newEmptyState = document.createElement('div');
+            newEmptyState.id = 'empty-state';
+            newEmptyState.innerHTML = `Start tracking your daily habits- click <strong>Add Habit</strong> to begin.`;
+            document.querySelector('.table-wrapper').appendChild(newEmptyState);
+        }
+    } else if (emptyState) {
+        emptyState.remove();
+    }
+
+    renderAllStamps();
+}
+
+function renderAllStamps() {
+    const tableBody = document.getElementById('tableBody');
+    const rows = tableBody.querySelectorAll('tr');
+
+    rows.forEach(row => {
+        const rowId = row.id;
+        const cells = row.querySelectorAll('.day-cell');
+
+        cells.forEach(cell => {
+            const day = cell.dataset.day;
+            const cellKey = getMonthCellKey(rowId, day);
+            const stamp = cellData.get(cellKey);
+
+            if (stamp) {
+                renderCellStamp(cell, stamp);
+            }
+        });
+    });
+}
+
+function switchMonth(offset) {
+    viewMonth += offset;
+
+    // handle year rollover
+    if (viewMonth > 11) {
+        viewMonth = 0;
+        viewYear++;
+    } else if (viewMonth < 0) {
+        viewMonth = 11;
+        viewYear--;
+    }
+
+    // update everything
+    updateMonthHeader();
+    generateDays();
+    regenerateTable();
+    updateChart();
+}
+
+// set initial month header
+updateMonthHeader();
 
 // stamp mode: 'simple' or 'manual'
 let stampMode = 'manual'; // default to manual (popup) mode
@@ -54,6 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tableBody = document.getElementById('tableBody');
     const addHabitBtn = document.getElementById('add-habit');
+
+    // month navigation buttons
+    document.getElementById('prevMonth').addEventListener('click', () => switchMonth(-1));
+    document.getElementById('nextMonth').addEventListener('click', () => switchMonth(1));
 
     // settings dropdown
     const settingsBtn = document.getElementById('settingsBtn');
@@ -126,12 +240,15 @@ function addRow(tableBody) {
     const empty = document.getElementById('empty-state');
     if (empty) empty.remove();
 
-    const rowId = 'row-' + Date.now();
+    const monthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
+    const rowId = `${monthKey}_row-${Date.now()}`;
     const newRow = document.createElement('tr');
     newRow.id = rowId;
+    newRow.dataset.month = monthKey;
 
+    const daysInMonth = getDaysInMonth(viewYear, viewMonth);
     let checkboxes = '';
-    for (let i = 1; i <= DAYS_IN_MONTH; i++) {
+    for (let i = 1; i <= daysInMonth; i++) {
         checkboxes += `<td class="day-cell" data-day="${i}" data-row="${rowId}"></td>`;
     }
     newRow.innerHTML = `
@@ -223,6 +340,12 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
 // cellData: Map<cellKey, { x, y }> — ONE stamp per cell (ok.png position)
 const cellData = new Map();
 
+// helper function to create month-specific cell key
+function getMonthCellKey(rowId, day) {
+    const monthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
+    return `${monthKey}_${rowId}_${day}`;
+}
+
 // current popup context
 let currentCell = null;
 let currentCellKey = null;
@@ -258,7 +381,7 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
 
     // simple mode: just toggle centered stamp
     if (stampMode === 'simple') {
-        const cellKey = cell.dataset.row + '_' + cell.dataset.day;
+        const cellKey = getMonthCellKey(cell.dataset.row, cell.dataset.day);
 
         if (cellData.has(cellKey)) {
             // remove stamp
@@ -281,7 +404,7 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
 
 function openStampPopup(cell, habitName) {
     currentCell = cell;
-    currentCellKey = cell.dataset.row + '_' + cell.dataset.day;
+    currentCellKey = getMonthCellKey(cell.dataset.row, cell.dataset.day);
 
     // load existing stamp for this cell (if any)
     currentStamp = cellData.get(currentCellKey) || null;
@@ -425,11 +548,12 @@ let progressChart = null;
 
 function initChart() {
     const ctx = document.getElementById('progressChart').getContext('2d');
+    const daysInMonth = getDaysInMonth(viewYear, viewMonth);
 
     progressChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: Array.from({ length: DAYS_IN_MONTH }, (_, i) => i + 1),
+            labels: Array.from({ length: daysInMonth }, (_, i) => i + 1),
             datasets: [{
                 label: 'Habits Completed',
                 data: [],
@@ -519,15 +643,24 @@ function initChart() {
 function updateChart() {
     if (!progressChart) return;
 
-    // count completed habits per day
-    const dailyCounts = new Array(DAYS_IN_MONTH).fill(0);
+    const daysInMonth = getDaysInMonth(viewYear, viewMonth);
+    const currentMonthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
+
+    // update labels if month changed
+    progressChart.data.labels = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+    // count completed habits per day for CURRENT viewing month only
+    const dailyCounts = new Array(daysInMonth).fill(0);
 
     // iterate through all stamps in cellData
     cellData.forEach((stamp, cellKey) => {
-        // cellKey format: "row-timestamp_dayNumber"
-        const day = parseInt(cellKey.split('_')[1]);
-        if (day >= 1 && day <= DAYS_IN_MONTH) {
-            dailyCounts[day - 1]++;
+        // cellKey format: "YYYY-MM_row-timestamp_dayNumber"
+        if (cellKey.startsWith(currentMonthKey)) {
+            const parts = cellKey.split('_');
+            const day = parseInt(parts[parts.length - 1]);
+            if (day >= 1 && day <= daysInMonth) {
+                dailyCounts[day - 1]++;
+            }
         }
     });
 
