@@ -213,6 +213,25 @@ document.addEventListener('DOMContentLoaded', () => {
     modeToggle.addEventListener('click', () => {
         stampMode = stampMode === 'simple' ? 'manual' : 'simple';
         modeToggle.textContent = stampMode === 'simple' ? 'Switch to Manual Mode' : 'Switch to Simple Mode';
+        tableBody.classList.toggle('simple-mode', stampMode === 'simple');
+    });
+    // simple mode: hover preview stamp
+    tableBody.addEventListener('mouseover', (e) => {
+        const cell = e.target.closest('.day-cell');
+        if (!cell || stampMode !== 'simple') return;
+        if (cell.querySelector('.stamp-hover-preview')) return; // already showing
+        if (cell.classList.contains('has-stamp')) return; // already stamped, no preview needed
+
+        const preview = document.createElement('div');
+        preview.className = 'stamp-hover-preview';
+        cell.appendChild(preview);
+    });
+
+    tableBody.addEventListener('mouseout', (e) => {
+        const cell = e.target.closest('.day-cell');
+        if (!cell) return;
+        const preview = cell.querySelector('.stamp-hover-preview');
+        if (preview) preview.remove();
     });
 
     addHabitBtn.addEventListener('click', () => {

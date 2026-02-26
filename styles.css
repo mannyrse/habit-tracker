@@ -198,6 +198,24 @@ tbody td:first-child {
     transform: translate(-50%, -50%);
 }
 
+/* simple mode hover preview stamp */
+.stamp-hover-preview {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 35px;
+    height: 35px;
+    background-image: url("ok.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none;
+    filter: grayscale(100%);
+    opacity: 0.35;
+    transition: opacity 0.12s ease;
+}
+
 /* user input styling */
 .habit-input {
     width: 100%;
