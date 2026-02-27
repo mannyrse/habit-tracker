@@ -141,6 +141,16 @@ function switchMonth(offset) {
         viewYear--;
     }
 
+    // remove any rows with empty/unfinished habit inputs
+    const tableBody = document.getElementById('tableBody');
+    const rowsWithEmptyInput = tableBody.querySelectorAll('tr');
+    rowsWithEmptyInput.forEach(row => {
+        const input = row.querySelector('.habit-input');
+        if (input) {
+            row.remove();
+        }
+    });
+
     // update everything
     updateMonthHeader();
     generateDays();
