@@ -99,7 +99,7 @@ function regenerateTable() {
         if (!emptyState) {
             const newEmptyState = document.createElement('div');
             newEmptyState.id = 'empty-state';
-            newEmptyState.innerHTML = `Start tracking your daily habits- click <strong>Add Habit</strong> to begin.`;
+            newEmptyState.innerHTML = `Start tracking your daily habits - click <strong>Add Habit</strong> to begin.`;
             document.querySelector('.table-wrapper').appendChild(newEmptyState);
         }
     } else if (emptyState) {
@@ -352,6 +352,16 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
     if (!e.target.classList.contains('delete-btn')) return;
 
     const row = e.target.closest('tr');
+    const rowId = row.id;
+
+    const keysToDelete = [];
+    cellData.forEach((stamp, cellKey) => {
+        if (cellKey.includes(rowId)) {
+            keysToDelete.push(cellKey);
+        }
+    });
+    keysToDelete.forEach(key => cellData.delete(key));
+
     row.remove();
 
     // show empty state if no rows left
@@ -362,6 +372,8 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
         emptyState.innerHTML = `Start tracking your daily habits - click <strong>Add Habit</strong> to begin.`;
         document.querySelector('.table-wrapper').appendChild(emptyState);
     }
+
+    updateChart();
 });
 
 // stamp popup feature
@@ -566,9 +578,18 @@ function renderCellStamp(cell, stamp) {
     cell.appendChild(el);
 }
 
-// escape to close
+// escape to close any open overlay
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && overlay.classList.contains('open')) closePopup();
+    if (e.key === 'Escape') {
+        if (overlay.classList.contains('open')) {
+            closePopup();
+        }
+        const settingsOverlay = document.getElementById('settingsOverlay');
+        if (settingsOverlay.classList.contains('open')) {
+            settingsOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    }
 });
 
 // progress chart 
@@ -675,6 +696,13 @@ function updateChart() {
     const daysInMonth = getDaysInMonth(viewYear, viewMonth);
     const currentMonthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
 
+    // count total habits for this month
+    const tableBody = document.getElementById('tableBody');
+    const visibleHabits = Array.from(tableBody.querySelectorAll('tr')).filter(row => {
+        return row.dataset.month === currentMonthKey && row.querySelector('.habit-text');
+    });
+    const totalHabits = visibleHabits.length;
+
     // update labels if month changed
     progressChart.data.labels = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
@@ -692,6 +720,9 @@ function updateChart() {
             }
         }
     });
+
+    // set Y-axis max to total number of habits (or at least 1)
+    progressChart.options.scales.y.suggestedMax = Math.max(totalHabits, 1);
 
     // update chart data
     progressChart.data.datasets[0].data = dailyCounts;
