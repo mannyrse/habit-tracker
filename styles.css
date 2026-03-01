@@ -16,10 +16,12 @@ body {
 }
 
 :root {
-    --grid: #d4d0c8;
+    --cream: #f5f2eb;
     --paper: #fffef9;
     --ink: #2c2820;
     --ink-light: #8a8070;
+    --accent: #c0392b;
+    --grid: #d4d0c8;
 }
 
 .month-header {
