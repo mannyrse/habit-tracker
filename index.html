@@ -17,12 +17,13 @@
 <body>
 
     <nav class="navbar">
-        <div class="nav-left"><a href="landing.html">Daily Stamps</a></div>
+        <div class="nav-left"><a href="pages/landing.html">Daily Stamps</a></div>
         <div class="nav-right">
             <div class="settings-dropdown">
                 <button class="settings-btn" id="settingsBtn">Welcome ▾</button>
                 <div class="dropdown-menu" id="settingsMenu">
-                    <a href="#" class="dropdown-item" id="openSettings">⚙️ Settings</a>
+                    <a href="#" class="dropdown-item" id="openSettings">Settings</a>
+                    <a href="#" class="dropdown-item" id="logoutBtn">Logout</a>
                 </div>
             </div>
         </div>
@@ -104,8 +105,36 @@
             </div>
         </div>
     </div>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="scripts/firebase-config.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/data-manager.js"></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
 
-    <script src="script.js"></script>
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoZP-3qKjPkHKfo_RRJNiKlJz6rIX0GDc",
+            authDomain: "habit-tracker-743f0.firebaseapp.com",
+            projectId: "habit-tracker-743f0",
+            storageBucket: "habit-tracker-743f0.firebasestorage.app",
+            messagingSenderId: "1026978658583",
+            appId: "1:1026978658583:web:799f934535b4ecbbfedf52",
+            measurementId: "G-HXN094C44D"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+    <script src="scripts/script.js"></script>
 </body>
 
 </html>

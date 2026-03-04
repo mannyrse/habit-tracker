@@ -208,7 +208,7 @@ tbody td:first-child {
     transform: translate(-50%, -50%);
     width: 35px;
     height: 35px;
-    background-image: url("ok.png");
+    background-image: url("images/ok.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

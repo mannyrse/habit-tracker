@@ -151,11 +151,14 @@ function switchMonth(offset) {
         }
     });
 
-    // update everything
     updateMonthHeader();
     generateDays();
-    regenerateTable();
-    updateChart();
+
+    if (typeof loadUserData === 'function') {
+        loadUserData().catch(error => {
+            console.error('Failed to load user data:', error);
+        });
+    }
 }
 
 // set initial month header
@@ -263,6 +266,17 @@ document.addEventListener('DOMContentLoaded', () => {
         addRow(tableBody);
     });
 
+    // logout button
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof signOut === 'function') {
+                signOut();
+            }
+        });
+    }
+
 });
 
 function addRow(tableBody) {
@@ -270,7 +284,7 @@ function addRow(tableBody) {
     if (empty) empty.remove();
 
     const monthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
-    const rowId = `${monthKey}_row-${Date.now()}`;
+    const rowId = `row-${Date.now()}`;
     const newRow = document.createElement('tr');
     newRow.id = rowId;
     newRow.dataset.month = monthKey;
@@ -292,7 +306,7 @@ function addRow(tableBody) {
 
 // press enter to lock in habit
 
-document.getElementById('tableBody').addEventListener('keydown', (e) => {
+document.getElementById('tableBody').addEventListener('keydown', async (e) => {
     if (!e.target.classList.contains('habit-input')) return;
 
     if (e.key === 'Enter') {
@@ -301,6 +315,9 @@ document.getElementById('tableBody').addEventListener('keydown', (e) => {
         if (!value) return;
 
         const td = input.closest('.habit-cell');
+        const row = td.closest('tr');
+        const habitId = row.id;
+        const monthKey = row.dataset.month;
         // clear cell safely - fixed xss issue
         td.innerHTML = '';
 
@@ -315,6 +332,17 @@ document.getElementById('tableBody').addEventListener('keydown', (e) => {
 
         td.appendChild(span);
         td.appendChild(deleteBtn);
+
+        updateChart();
+
+        if (typeof saveHabit === 'function') {
+            try {
+                await saveHabit(monthKey, habitId, value);
+                console.log('Habit updated:', habitId, value);
+            } catch (error) {
+                console.error('Failed to save habit:', error);
+            }
+        }
     }
 });
 
@@ -348,7 +376,7 @@ document.getElementById('tableBody').addEventListener('dblclick', (e) => {
 
 // delete habit row
 
-document.getElementById('tableBody').addEventListener('click', (e) => {
+document.getElementById('tableBody').addEventListener('click', async (e) => {
     if (!e.target.classList.contains('delete-btn')) return;
 
     const row = e.target.closest('tr');
@@ -374,6 +402,15 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
     }
 
     updateChart();
+
+    if (typeof deleteHabit === 'function' && typeof deleteHabitStamps === 'function') {
+        try {
+            await deleteHabit(rowId);
+            await deleteHabitStamps(rowId);
+        } catch (error) {
+            console.error('Failed to delete habit:', error);
+        }
+    }
 });
 
 // stamp popup feature
@@ -428,11 +465,33 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
             // remove stamp
             cellData.delete(cellKey);
             renderCellStamp(cell, null);
+
+            if (typeof deleteStamp === 'function') {
+                const parts = cellKey.split('_');
+                const monthKey = parts[0];
+                const habitId = parts[1];
+                const day = parts[2];
+
+                deleteStamp(monthKey, habitId, day).catch(error => {
+                    console.error('Failed to delete stamp:', error);
+                });
+            }
         } else {
             // add centered stamp
             const centeredStamp = { x: 50, y: 50 };
             cellData.set(cellKey, centeredStamp);
             renderCellStamp(cell, centeredStamp);
+
+            if (typeof saveStamp === 'function') {
+                const parts = cellKey.split('_');
+                const monthKey = parts[0];
+                const habitId = parts[1];
+                const day = parts[2];
+
+                saveStamp(monthKey, habitId, day, centeredStamp).catch(error => {
+                    console.error('Failed to save stamp:', error);
+                });
+            }
         }
 
         updateChart(); // update chart when stamp changes
@@ -501,7 +560,7 @@ function renderCanvasStamp() {
     el.style.left = currentStamp.x + '%';
     el.style.top = currentStamp.y + '%';
     // Show ok.png image — sized to match cell proportion (35/48 = ~73%)
-    el.style.backgroundImage = 'url("ok.png")';
+    el.style.backgroundImage = 'url("images/ok.png")';
     el.style.backgroundSize = 'contain';
     el.style.backgroundRepeat = 'no-repeat';
     el.style.backgroundPosition = 'center';
@@ -542,9 +601,31 @@ function saveAndClose() {
     if (!currentStamp) {
         cellData.delete(currentCellKey);
         renderCellStamp(currentCell, null);
+
+        if (typeof deleteStamp === 'function') {
+            const parts = currentCellKey.split('_');
+            const monthKey = parts[0];
+            const habitId = parts[1];
+            const day = parts[2];
+
+            deleteStamp(monthKey, habitId, day).catch(error => {
+                console.error('Failed to delete stamp:', error);
+            });
+        }
     } else {
         cellData.set(currentCellKey, currentStamp);
         renderCellStamp(currentCell, currentStamp);
+
+        if (typeof saveStamp === 'function') {
+            const parts = currentCellKey.split('_');
+            const monthKey = parts[0];
+            const habitId = parts[1];
+            const day = parts[2];
+
+            saveStamp(monthKey, habitId, day, currentStamp).catch(error => {
+                console.error('Failed to save stamp:', error);
+            });
+        }
     }
 
     updateChart(); // update chart when stamp changes
@@ -568,7 +649,7 @@ function renderCellStamp(cell, stamp) {
     el.style.left = stamp.x + '%';
     el.style.top = stamp.y + '%';
     // Show ok.png image scaled to cell — larger for better visibility
-    el.style.backgroundImage = 'url("ok.png")';
+    el.style.backgroundImage = 'url("images/ok.png")';
     el.style.backgroundSize = 'contain';
     el.style.backgroundRepeat = 'no-repeat';
     el.style.backgroundPosition = 'center';

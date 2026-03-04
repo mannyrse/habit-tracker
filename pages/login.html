@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Daily Marks</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Inter, sans-serif;
+            background: #f5f2eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: #fffef9;
+            border: 1px solid #d4d0c8;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(44, 40, 32, 0.08);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2c2820;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #8a8070;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c2820;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d4d0c8;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: Inter, sans-serif;
+            transition: border-color 0.15s;
+            background: #fffef9;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2c2820;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #2c2820;
+            color: #fffef9;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.15s;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            color: #8a8070;
+            font-size: 14px;
+        }
+
+        .toggle-text {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #8a8070;
+        }
+
+        .toggle-text a {
+            color: #2c2820;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .toggle-text a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fff3f3;
+            border: 1px solid #ffcdd2;
+            color: #c0392b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .back-link a {
+            color: #8a8070;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link a:hover {
+            color: #2c2820;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <img src="/images/ok.png" alt="Daily Marks">
+            <h1>Daily Marks</h1>
+            <p class="subtitle">Sign in to track your habits</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="authForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required autocomplete="current-password" minlength="6">
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">Sign In</button>
+        </form>
+
+        <div class="toggle-text">
+            <span id="toggleText">Don't have an account? <a href="#" id="toggleLink">Sign up</a></span>
+        </div>
+
+        <div class="back-link">
+            <a href="landing.html">← Back to home</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script src="../scripts/firebase-config.js"></script>
+    <script src="../scripts/auth.js"></script>
+
+    <script>
+        let isSignUp = false;
+        const form = document.getElementById('authForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const toggleLink = document.getElementById('toggleLink');
+        const toggleText = document.getElementById('toggleText');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Toggle between sign in and sign up
+        toggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            isSignUp = !isSignUp;
+
+            if (isSignUp) {
+                submitBtn.textContent = 'Sign Up';
+                toggleText.innerHTML = 'Already have an account? <a href="#" id="toggleLink">Sign in</a>';
+            } else {
+                submitBtn.textContent = 'Sign In';
+                toggleText.innerHTML = 'Don\'t have an account? <a href="#" id="toggleLink">Sign up</a>';
+            }
+
+            // Re-attach event listener to new link
+            document.getElementById('toggleLink').addEventListener('click', arguments.callee);
+            errorMessage.classList.remove('show');
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Loading...';
+            errorMessage.classList.remove('show');
+
+            try {
+                if (isSignUp) {
+                    await signUp(email, password);
+                } else {
+                    await signIn(email, password);
+                }
+
+                // Redirect to main app
+                window.location.href = '../index.html';
+            } catch (error) {
+                let message = error.message;
+
+                // User-friendly error messages
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'This email is already registered. Please sign in.';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Password should be at least 6 characters.';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Please enter a valid email address.';
+                } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    message = 'Invalid email or password.';
+                }
+
+                errorMessage.textContent = message;
+                errorMessage.classList.add('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = isSignUp ? 'Sign Up' : 'Sign In';
+            }
+        });
+
+        // Redirect if already signed in
+        auth.onAuthStateChanged((user) => {
+            if (user && !window.location.search.includes('logout')) {
+                window.location.href = '../index.html';
+            }
+        });
+    </script>
+</body>
+
+</html>
