@@ -1,4 +1,4 @@
-// data manager - handles all firestone operations
+// data manager - handles all firestore operations
 
 // get current user ID
 function getCurrentUserId() {
@@ -169,42 +169,61 @@ async function loadStamps(monthKey) {
 // load habits and stamps for current viewing month
 async function loadUserData() {
     const monthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
+    const tableBody = document.getElementById('tableBody');
+
+    // show skeleton rows immediately so the table isn't blank while fetching
+    if (typeof showSkeletonRows === 'function') {
+        showSkeletonRows(tableBody, monthKey);
+    }
 
     try {
-        // load habits
-        const habits = await loadHabits(monthKey);
+        // fetch habits and stamps in parallel — cuts wait time roughly in half
+        const [habits, stamps] = await Promise.all([
+            loadHabits(monthKey),
+            loadStamps(monthKey)
+        ]);
 
-        // clear existing table
-        const tableBody = document.getElementById('tableBody');
-        tableBody.innerHTML = '';
+        // build all rows in a fragment before touching the live DOM
+        const daysInMonth = getDaysInMonth(viewYear, viewMonth);
+        const fragment = document.createDocumentFragment();
 
-        // recreate habits
         habits.forEach(habit => {
-            const daysInMonth = getDaysInMonth(viewYear, viewMonth);
             const newRow = document.createElement('tr');
             newRow.id = habit.id;
             newRow.dataset.month = monthKey;
 
-            let checkboxes = '';
+            const habitTd = document.createElement('td');
+            habitTd.className = 'habit-cell';
+
+            const span = document.createElement('span');
+            span.className = 'habit-text';
+            span.textContent = habit.name;
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.title = 'Delete habit';
+            deleteBtn.textContent = '×';
+
+            habitTd.appendChild(span);
+            habitTd.appendChild(deleteBtn);
+            newRow.appendChild(habitTd);
+
             for (let i = 1; i <= daysInMonth; i++) {
-                checkboxes += `<td class="day-cell" data-day="${i}" data-row="${habit.id}"></td>`;
+                const td = document.createElement('td');
+                td.className = 'day-cell';
+                td.dataset.day = i;
+                td.dataset.row = habit.id;
+                newRow.appendChild(td);
             }
 
-            newRow.innerHTML = `
-                <td class="habit-cell">
-                    <span class="habit-text">${habit.name}</span>
-                    <button class="delete-btn" title="Delete habit">×</button>
-                </td>
-                ${checkboxes}
-            `;
-
-            tableBody.appendChild(newRow);
+            fragment.appendChild(newRow);
         });
 
-        // load stamps
-        const stamps = await loadStamps(monthKey);
+        // single atomic DOM swap — skeleton out, real rows in
+        tableBody.innerHTML = '';
+        tableBody.appendChild(fragment);
 
-        // clear existing cellData and populate with loaded stamps
+        // populate cellData with loaded stamps
         cellData.clear();
         Object.entries(stamps).forEach(([key, value]) => {
             const fullKey = `${monthKey}_${key}`;
@@ -214,22 +233,34 @@ async function loadUserData() {
         // render stamps on table
         renderAllStamps();
 
-        // update chart
-        updateChart();
+        // defer chart update to after the browser has painted the new rows
+        requestAnimationFrame(() => updateChart());
 
-        // remove empty state if habits exist
+        // manage empty state
         const emptyState = document.getElementById('empty-state');
-        if (habits.length > 0 && emptyState) {
-            emptyState.remove();
-        } else if (habits.length === 0 && !emptyState) {
-            const newEmptyState = document.createElement('div');
-            newEmptyState.id = 'empty-state';
-            newEmptyState.innerHTML = `Start tracking your daily habits - click <strong>Add Habit</strong> to begin.`;
-            document.querySelector('.table-wrapper').appendChild(newEmptyState);
+        if (habits.length > 0) {
+            if (emptyState) emptyState.remove();
+        } else {
+            if (!emptyState) {
+                const newEmptyState = document.createElement('div');
+                newEmptyState.id = 'empty-state';
+                newEmptyState.innerHTML = `Start tracking your daily habits - click <strong>Add Habit</strong> to begin.`;
+                document.querySelector('.table-wrapper').appendChild(newEmptyState);
+            }
         }
 
         console.log('User data loaded successfully');
     } catch (error) {
         console.error('Error loading user data:', error);
+
+        // on error, clear skeleton so user isn't stuck staring at fake rows
+        tableBody.innerHTML = '';
+        const emptyState = document.getElementById('empty-state');
+        if (!emptyState) {
+            const newEmptyState = document.createElement('div');
+            newEmptyState.id = 'empty-state';
+            newEmptyState.innerHTML = `Start tracking your daily habits - click <strong>Add Habit</strong> to begin.`;
+            document.querySelector('.table-wrapper').appendChild(newEmptyState);
+        }
     }
 }

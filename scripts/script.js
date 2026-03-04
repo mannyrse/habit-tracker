@@ -164,8 +164,8 @@ function switchMonth(offset) {
 // set initial month header
 updateMonthHeader();
 
-// stamp mode: 'simple' or 'manual'
-let stampMode = 'manual'; // default to manual (popup) mode
+// stamp mode: 'simple' or 'manual' — persisted across reloads via localStorage
+let stampMode = localStorage.getItem('stampMode') || 'manual';
 
 document.addEventListener('DOMContentLoaded', () => {
     generateDays();
@@ -221,13 +221,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // stamp mode toggle
+    // apply saved stamp mode on load so UI reflects persisted state
     const modeToggle = document.getElementById('stamp-mode-toggle');
+    modeToggle.textContent = stampMode === 'simple' ? 'Switch to Manual Mode' : 'Switch to Simple Mode';
+    tableBody.classList.toggle('simple-mode', stampMode === 'simple');
+
+    // stamp mode toggle
     modeToggle.addEventListener('click', () => {
         stampMode = stampMode === 'simple' ? 'manual' : 'simple';
+        localStorage.setItem('stampMode', stampMode);
         modeToggle.textContent = stampMode === 'simple' ? 'Switch to Manual Mode' : 'Switch to Simple Mode';
         tableBody.classList.toggle('simple-mode', stampMode === 'simple');
     });
+
     // simple mode: hover preview stamp
     tableBody.addEventListener('mouseover', (e) => {
         const cell = e.target.closest('.day-cell');
@@ -437,6 +443,9 @@ const hint = document.getElementById('canvasHint');
 document.getElementById('tableBody').addEventListener('click', (e) => {
     const cell = e.target.closest('.day-cell');
     if (!cell) return;
+
+    // ignore clicks on skeleton rows
+    if (cell.closest('.skeleton-row')) return;
 
     const row = cell.closest('tr');
     const habitCell = row.querySelector('.habit-cell');
@@ -673,6 +682,37 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// skeleton loading state
+
+function showSkeletonRows(tableBody, monthKey) {
+    tableBody.innerHTML = '';
+    const daysInMonth = getDaysInMonth(viewYear, viewMonth);
+
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < 3; i++) {
+        const row = document.createElement('tr');
+        row.className = 'skeleton-row';
+
+        const habitTd = document.createElement('td');
+        habitTd.className = 'habit-cell';
+        habitTd.innerHTML = '<div class="skeleton-text"></div>';
+        row.appendChild(habitTd);
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const td = document.createElement('td');
+            td.className = 'day-cell';
+            row.appendChild(td);
+        }
+
+        fragment.appendChild(row);
+    }
+    tableBody.appendChild(fragment);
+
+    // hide empty state while loading
+    const emptyState = document.getElementById('empty-state');
+    if (emptyState) emptyState.remove();
+}
+
 // progress chart 
 
 let progressChart = null;
@@ -777,10 +817,12 @@ function updateChart() {
     const daysInMonth = getDaysInMonth(viewYear, viewMonth);
     const currentMonthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
 
-    // count total habits for this month
+    // count total habits for this month (exclude skeleton rows)
     const tableBody = document.getElementById('tableBody');
     const visibleHabits = Array.from(tableBody.querySelectorAll('tr')).filter(row => {
-        return row.dataset.month === currentMonthKey && row.querySelector('.habit-text');
+        return !row.classList.contains('skeleton-row') &&
+            row.dataset.month === currentMonthKey &&
+            row.querySelector('.habit-text');
     });
     const totalHabits = visibleHabits.length;
 
