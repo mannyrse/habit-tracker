@@ -22,7 +22,6 @@ async function saveHabit(monthKey, habitId, habitName) {
                 monthKey: monthKey,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-        console.log('Habit saved:', habitId);
     } catch (error) {
         console.error('Error saving habit:', error);
         throw error;
@@ -36,7 +35,6 @@ async function deleteHabit(habitId) {
     try {
         await db.collection('users').doc(userId)
             .collection('habits').doc(habitId).delete();
-        console.log('Habit deleted:', habitId);
     } catch (error) {
         console.error('Error deleting habit:', error);
         throw error;
@@ -62,7 +60,6 @@ async function loadHabits(monthKey) {
             });
         });
 
-        console.log(`Loaded ${habits.length} habits for ${monthKey}`);
         return habits;
     } catch (error) {
         console.error('Error loading habits:', error);
@@ -82,8 +79,6 @@ async function saveStamp(monthKey, habitId, day, stampData) {
             .collection('stamps').doc(monthKey).set({
                 [stampKey]: stampData
             }, { merge: true });
-
-        console.log('Stamp saved:', stampKey);
     } catch (error) {
         console.error('Error saving stamp:', error);
         throw error;
@@ -100,8 +95,6 @@ async function deleteStamp(monthKey, habitId, day) {
             .collection('stamps').doc(monthKey).update({
                 [stampKey]: firebase.firestore.FieldValue.delete()
             });
-
-        console.log('Stamp deleted:', stampKey);
     } catch (error) {
         console.error('Error deleting stamp:', error);
         throw error;
@@ -136,7 +129,6 @@ async function deleteHabitStamps(habitId) {
         });
 
         await batch.commit();
-        console.log('All stamps deleted for habit:', habitId);
     } catch (error) {
         console.error('Error deleting habit stamps:', error);
         throw error;
@@ -152,10 +144,8 @@ async function loadStamps(monthKey) {
             .collection('stamps').doc(monthKey).get();
 
         if (doc.exists) {
-            console.log(`Loaded stamps for ${monthKey}`);
             return doc.data();
         } else {
-            console.log(`No stamps found for ${monthKey}`);
             return {};
         }
     } catch (error) {
@@ -248,8 +238,6 @@ async function loadUserData() {
                 document.querySelector('.table-wrapper').appendChild(newEmptyState);
             }
         }
-
-        console.log('User data loaded successfully');
     } catch (error) {
         console.error('Error loading user data:', error);
 
