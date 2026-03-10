@@ -24,6 +24,159 @@ body {
     --grid: #d4d0c8;
 }
 
+/* login page */
+
+body.login-page {
+    font-family: Inter, sans-serif;
+    background: #f5f2eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 16px;
+}
+
+.login-container {
+    background: #fffef9;
+    border: 1px solid #d4d0c8;
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(44, 40, 32, 0.08);
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo img {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+}
+
+.logo h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2c2820;
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #8a8070;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #2c2820;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d4d0c8;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: Inter, sans-serif;
+    transition: border-color 0.15s;
+    background: #fffef9;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #2c2820;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+    background: #2c2820;
+    color: #fffef9;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+    margin-top: 6px;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.toggle-text {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #8a8070;
+}
+
+.toggle-text a {
+    color: #2c2820;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.toggle-text a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    background: #fff3f3;
+    border: 1px solid #ffcdd2;
+    color: #c0392b;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
+.back-link {
+    text-align: center;
+    margin-top: 16px;
+}
+
+.back-link a {
+    color: #8a8070;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.back-link a:hover {
+    color: #2c2820;
+}
+
+/* main stylings */
+
 .month-header {
     text-align: center;
     font-weight: bold;
@@ -75,7 +228,6 @@ body {
     margin-top: 2px;
 }
 
-/* Only this scrolls */
 .table-wrapper {
     overflow-x: auto;
     width: 100%;
@@ -86,7 +238,6 @@ body {
     box-shadow: 0 2px 12px rgba(44, 40, 32, 0.07);
 }
 
-/* Table can be wider than screen */
 table {
     border-collapse: separate;
     border-spacing: 0;
@@ -136,7 +287,6 @@ thead th:first-child {
     color: var(--ink-light);
 }
 
-/* weekday style */
 .weekday {
     font-size: 9px;
     opacity: 0.6;
@@ -149,7 +299,6 @@ thead th:first-child {
     line-height: 1.4;
 }
 
-/* highlight today's date */
 th.today .date-number {
     background: var(--ink);
     color: var(--paper);
@@ -163,18 +312,15 @@ th.today .date-number {
     font-weight: 700;
 }
 
-/* Sticky first column */
 .habit-col,
 tbody td:first-child {
     position: sticky;
     left: 0;
     z-index: 5;
     background: var(--paper);
-
     width: 120px;
     min-width: 120px;
     text-align: left;
-
     white-space: normal;
     max-width: 160px;
     word-break: break-word;
@@ -193,14 +339,12 @@ tbody td:first-child {
     background: rgba(44, 40, 32, 0.04);
 }
 
-/* The stamp drawn inside a cell — positioned absolutely by % coords */
 .cell-stamp {
     position: absolute;
     pointer-events: none;
     transform: translate(-50%, -50%);
 }
 
-/* simple mode hover preview stamp */
 .stamp-hover-preview {
     position: absolute;
     left: 50%;
@@ -218,7 +362,6 @@ tbody td:first-child {
     transition: opacity 0.12s ease;
 }
 
-/* user input styling */
 .habit-input {
     width: 100%;
     border: none;
@@ -226,7 +369,6 @@ tbody td:first-child {
     font-size: 13px;
     background: transparent;
     color: var(--ink);
-
     white-space: normal;
     word-break: break-word;
     font-family: inherit;
@@ -243,13 +385,11 @@ tbody td:first-child {
     font-weight: 500;
     cursor: pointer;
     color: var(--ink);
-
     white-space: normal;
     word-break: break-word;
     line-height: 1.3;
 }
 
-/* invalid state */
 .habit-input.invalid {
     border-bottom: 2px solid #c0392b;
     background: transparent;
@@ -264,11 +404,9 @@ tbody td:first-child {
     position: sticky;
     top: 0;
     z-index: 20;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     padding: 12px 24px;
     border-bottom: 1px solid var(--grid);
     background: #f5f2eb;
@@ -347,7 +485,6 @@ nav a {
     background: rgba(44, 40, 32, 0.05);
 }
 
-/* settings popup modal */
 .settings-overlay {
     position: fixed;
     inset: 0;
@@ -446,14 +583,12 @@ nav a {
     margin: 0;
 }
 
-/* styling for main page content */
 .page-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px 24px 40px 24px;
 }
 
-/* button styling */
 #add-habit {
     display: inline-flex;
     align-items: center;
@@ -484,15 +619,12 @@ nav a {
     text-align: center;
     color: var(--ink-light);
     background: var(--paper);
-
     font-size: 14px;
     padding: 36px;
     font-style: italic;
     box-sizing: border-box;
-
     position: sticky;
     left: 0;
-
     width: 100%;
     z-index: 6;
 }
@@ -584,8 +716,6 @@ nav a {
     background: #a02d24;
 }
 
-/* stamp popup overlay section */
-
 .stamp-overlay {
     position: fixed;
     inset: 0;
@@ -669,13 +799,11 @@ nav a {
     background: rgba(44, 40, 32, 0.07);
 }
 
-/* stamp canvas area */
 .stamp-canvas-area {
     position: relative;
     margin: 16px 20px;
     border-radius: 10px;
     border: 1.5px dashed var(--grid);
-    /* 1:1 square to match cell proportions */
     aspect-ratio: 1 / 1;
     width: calc(100% - 40px);
     background: #faf9f5;
@@ -712,7 +840,6 @@ nav a {
     opacity: 0;
 }
 
-/* placed stamp in canvas */
 .placed-stamp {
     position: absolute;
     pointer-events: none;
@@ -745,7 +872,6 @@ nav a {
     }
 }
 
-/* popup actions */
 .stamp-popup-actions {
     display: flex;
     gap: 10px;
@@ -946,7 +1072,6 @@ body.landing {
     color: var(--ink);
 }
 
-/* ---- features ---- */
 .features {
     padding: 80px 24px;
     border-top: 1px solid var(--grid);
