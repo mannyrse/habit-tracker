@@ -1184,7 +1184,7 @@ body.landing {
 }
 
 .footer-inner {
-    max-width: 900px;
+    max-width: 1400px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -1223,7 +1223,7 @@ body.landing {
 }
 
 .footer-bottom {
-    max-width: 900px;
+    max-width: 1400px;
     margin: 24px auto 0;
     padding-top: 20px;
     border-top: 1px solid var(--grid);
