@@ -131,33 +131,20 @@ function renderAllStamps() {
 
 function switchMonth(offset) {
     viewMonth += offset;
-
-    // handle year rollover
-    if (viewMonth > 11) {
-        viewMonth = 0;
-        viewYear++;
-    } else if (viewMonth < 0) {
-        viewMonth = 11;
-        viewYear--;
-    }
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    else if (viewMonth < 0) { viewMonth = 11; viewYear--; }
 
     // remove any rows with empty/unfinished habit inputs
     const tableBody = document.getElementById('tableBody');
-    const rowsWithEmptyInput = tableBody.querySelectorAll('tr');
-    rowsWithEmptyInput.forEach(row => {
-        const input = row.querySelector('.habit-input');
-        if (input) {
-            row.remove();
-        }
+    tableBody.querySelectorAll('tr').forEach(row => {
+        if (row.querySelector('.habit-input')) row.remove();
     });
 
     updateMonthHeader();
     generateDays();
 
     if (typeof loadUserData === 'function') {
-        loadUserData().catch(error => {
-            console.error('Failed to load user data:', error);
-        });
+        loadUserData().catch(error => console.error('Failed to load user data:', error));
     }
 }
 
@@ -178,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('tableBody');
     const addHabitBtn = document.getElementById('add-habit');
 
-    // month navigation buttons
     document.getElementById('prevMonth').addEventListener('click', () => switchMonth(-1));
     document.getElementById('nextMonth').addEventListener('click', () => switchMonth(1));
 
@@ -194,10 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsMenu.classList.toggle('open');
     });
 
-    // close dropdown when clicking outside
-    document.addEventListener('click', () => {
-        settingsMenu.classList.remove('open');
-    });
+    document.addEventListener('click', () => settingsMenu.classList.remove('open'));
 
     // open settings menu
     openSettingsBtn.addEventListener('click', (e) => {
@@ -221,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // apply saved stamp mode on load so UI reflects persisted state
+    // stamp mode toggle
     const modeToggle = document.getElementById('stamp-mode-toggle');
     modeToggle.textContent = stampMode === 'simple' ? 'Switch to Manual Mode' : 'Switch to Simple Mode';
     tableBody.classList.toggle('simple-mode', stampMode === 'simple');
@@ -238,11 +221,20 @@ document.addEventListener('DOMContentLoaded', () => {
     tableBody.addEventListener('mouseover', (e) => {
         const cell = e.target.closest('.day-cell');
         if (!cell || stampMode !== 'simple') return;
-        if (cell.querySelector('.stamp-hover-preview')) return; // already showing
-        if (cell.classList.contains('has-stamp')) return; // already stamped, no preview needed
+        if (cell.querySelector('.stamp-hover-preview')) return;
+        if (cell.classList.contains('has-stamp')) return;
 
         const preview = document.createElement('div');
         preview.className = 'stamp-hover-preview';
+
+        // use custom stamp for preview if set
+        const stampSrc = (typeof getActiveStampUrl === 'function' && getActiveStampUrl() !== 'default')
+            ? getActiveStampUrl()
+            : null;
+        if (stampSrc) {
+            preview.style.backgroundImage = `url("${stampSrc}")`;
+        }
+
         cell.appendChild(preview);
     });
 
@@ -265,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
             unfinished.addEventListener('input', () => {
                 unfinished.classList.remove('invalid');
                 unfinished.placeholder = "Enter habit";
-            }, { once: true })
+            }, { once: true });
             return;
         }
 
@@ -277,12 +269,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (typeof signOut === 'function') {
-                signOut();
-            }
+            if (typeof signOut === 'function') signOut();
         });
     }
-
 });
 
 function addRow(tableBody) {
@@ -306,61 +295,53 @@ function addRow(tableBody) {
         </td>
         ${checkboxes}
     `;
-
     tableBody.appendChild(newRow);
 }
 
-// press enter to lock in habit
-
+// press enter to save habit
 document.getElementById('tableBody').addEventListener('keydown', async (e) => {
     if (!e.target.classList.contains('habit-input')) return;
+    if (e.key !== 'Enter') return;
 
-    if (e.key === 'Enter') {
-        const input = e.target;
-        const value = input.value.trim();
-        if (!value) return;
+    const input = e.target;
+    const value = input.value.trim();
+    if (!value) return;
 
-        const td = input.closest('.habit-cell');
-        const row = td.closest('tr');
-        const habitId = row.id;
-        const monthKey = row.dataset.month;
-        // clear cell safely - fixed xss issue
-        td.innerHTML = '';
+    const td = input.closest('.habit-cell');
+    const row = td.closest('tr');
+    const habitId = row.id;
+    const monthKey = row.dataset.month;
 
-        const span = document.createElement('span');
-        span.className = 'habit-text';
-        span.textContent = value;
+    td.innerHTML = '';
+    const span = document.createElement('span');
+    span.className = 'habit-text';
+    span.textContent = value;
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.title = 'Delete habit';
-        deleteBtn.textContent = '×';
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.title = 'Delete habit';
+    deleteBtn.textContent = '×';
 
-        td.appendChild(span);
-        td.appendChild(deleteBtn);
+    td.appendChild(span);
+    td.appendChild(deleteBtn);
+    updateChart();
 
-        updateChart();
-
-        if (typeof saveHabit === 'function') {
-            try {
-                await saveHabit(monthKey, habitId, value);
-                console.log('Habit updated:', habitId, value);
-            } catch (error) {
-                console.error('Failed to save habit:', error);
-            }
+    if (typeof saveHabit === 'function') {
+        try {
+            await saveHabit(monthKey, habitId, value);
+        } catch (error) {
+            console.error('Failed to save habit:', error);
         }
     }
 });
 
 // double click to edit
-
 document.getElementById('tableBody').addEventListener('dblclick', (e) => {
     if (!e.target.classList.contains('habit-text')) return;
 
     const span = e.target;
     const td = span.closest('.habit-cell');
     const currentText = span.textContent;
-
     td.innerHTML = '';
 
     const input = document.createElement('input');
@@ -375,13 +356,10 @@ document.getElementById('tableBody').addEventListener('dblclick', (e) => {
 
     td.appendChild(input);
     td.appendChild(deleteBtn);
-
     input.focus();
-
 });
 
 // delete habit row
-
 document.getElementById('tableBody').addEventListener('click', async (e) => {
     if (!e.target.classList.contains('delete-btn')) return;
 
@@ -390,17 +368,12 @@ document.getElementById('tableBody').addEventListener('click', async (e) => {
 
     const keysToDelete = [];
     cellData.forEach((stamp, cellKey) => {
-        if (cellKey.includes(rowId)) {
-            keysToDelete.push(cellKey);
-        }
+        if (cellKey.includes(rowId)) keysToDelete.push(cellKey);
     });
     keysToDelete.forEach(key => cellData.delete(key));
-
     row.remove();
 
-    // show empty state if no rows left
-    const remainingRows = document.querySelectorAll('#tableBody tr');
-    if (remainingRows.length === 0) {
+    if (document.querySelectorAll('#tableBody tr').length === 0) {
         const emptyState = document.createElement('div');
         emptyState.id = 'empty-state';
         emptyState.innerHTML = `Start tracking your daily habits - click <strong>Add Habit</strong> to begin.`;
@@ -421,19 +394,16 @@ document.getElementById('tableBody').addEventListener('click', async (e) => {
 
 // stamp popup feature
 
-// cellData: Map<cellKey, { x, y }> — ONE stamp per cell (ok.png position)
 const cellData = new Map();
 
-// helper function to create month-specific cell key
 function getMonthCellKey(rowId, day) {
     const monthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
     return `${monthKey}_${rowId}_${day}`;
 }
 
-// current popup context
 let currentCell = null;
 let currentCellKey = null;
-let currentStamp = null; // { x, y } — position where stamp is placed
+let currentStamp = null;
 
 const overlay = document.getElementById('stampOverlay');
 const canvas = document.getElementById('stampCanvas');
@@ -443,8 +413,6 @@ const hint = document.getElementById('canvasHint');
 document.getElementById('tableBody').addEventListener('click', (e) => {
     const cell = e.target.closest('.day-cell');
     if (!cell) return;
-
-    // ignore clicks on skeleton rows
     if (cell.closest('.skeleton-row')) return;
 
     const row = cell.closest('tr');
@@ -457,75 +425,53 @@ document.getElementById('tableBody').addEventListener('click', (e) => {
         input.placeholder = "Enter a habit first";
         input.focus();
         input.addEventListener('animationend', () => input.classList.remove('shake'), { once: true });
-
         input.addEventListener('input', () => {
             input.classList.remove('invalid');
             input.placeholder = "Enter habit";
         }, { once: true });
-
         return;
     }
 
-    // simple mode: just toggle centered stamp
     if (stampMode === 'simple') {
         const cellKey = getMonthCellKey(cell.dataset.row, cell.dataset.day);
-
         if (cellData.has(cellKey)) {
-            // remove stamp
             cellData.delete(cellKey);
             renderCellStamp(cell, null);
-
             if (typeof deleteStamp === 'function') {
                 const parts = cellKey.split('_');
-                const monthKey = parts[0];
-                const habitId = parts[1];
-                const day = parts[2];
-
-                deleteStamp(monthKey, habitId, day).catch(error => {
-                    console.error('Failed to delete stamp:', error);
-                });
+                deleteStamp(parts[0], parts[1], parts[2]).catch(err => console.error(err));
             }
         } else {
-            // add centered stamp
             const centeredStamp = { x: 50, y: 50 };
             cellData.set(cellKey, centeredStamp);
             renderCellStamp(cell, centeredStamp);
-
             if (typeof saveStamp === 'function') {
                 const parts = cellKey.split('_');
-                const monthKey = parts[0];
-                const habitId = parts[1];
-                const day = parts[2];
-
-                saveStamp(monthKey, habitId, day, centeredStamp).catch(error => {
-                    console.error('Failed to save stamp:', error);
-                });
+                saveStamp(parts[0], parts[1], parts[2], centeredStamp).catch(err => console.error(err));
             }
         }
-
-        updateChart(); // update chart when stamp changes
-    }
-    // manual mode: open popup
-    else {
+        updateChart();
+    } else {
         openStampPopup(cell, habitText.textContent);
     }
 });
 
+function getStampSrc() {
+    return (typeof getActiveStampUrl === 'function' && getActiveStampUrl() !== 'default')
+        ? getActiveStampUrl()
+        : 'images/ok.png';
+}
+
 function openStampPopup(cell, habitName) {
     currentCell = cell;
     currentCellKey = getMonthCellKey(cell.dataset.row, cell.dataset.day);
-
-    // load existing stamp for this cell (if any)
     currentStamp = cellData.get(currentCellKey) || null;
 
-    // set popup header info
     document.getElementById('popupHabitName').textContent = habitName;
     document.getElementById('popupDate').textContent = `Day ${cell.dataset.day}`;
 
-    // render existing stamp in canvas
     renderCanvasStamp();
     updateHint();
-
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
 }
@@ -538,24 +484,15 @@ function closePopup() {
     currentStamp = null;
 }
 
-// click outside popup to close
-overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closePopup();
-});
-
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closePopup(); });
 document.getElementById('popupClose').addEventListener('click', closePopup);
 
-// canvas: place stamp exactly where clicked — replaces any previous stamp
 canvas.addEventListener('click', (e) => {
     if (e.target.closest('.canvas-hint')) return;
-
     const rect = canvas.getBoundingClientRect();
-    // store as % so it's resolution-independent
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-
     currentStamp = { x, y };
-
     renderCanvasStamp();
     updateHint();
 });
@@ -568,12 +505,10 @@ function renderCanvasStamp() {
     el.className = 'placed-stamp new';
     el.style.left = currentStamp.x + '%';
     el.style.top = currentStamp.y + '%';
-    // Show ok.png image — sized to match cell proportion (35/48 = ~73%)
-    el.style.backgroundImage = 'url("images/ok.png")';
+    el.style.backgroundImage = `url("${getStampSrc()}")`;
     el.style.backgroundSize = 'contain';
     el.style.backgroundRepeat = 'no-repeat';
     el.style.backgroundPosition = 'center';
-    // 73% of 200px canvas = 146px (matches 35px in 48px cell)
     el.style.width = '146px';
     el.style.height = '146px';
     el.addEventListener('animationend', () => el.classList.remove('new'), { once: true });
@@ -581,11 +516,7 @@ function renderCanvasStamp() {
 }
 
 function updateHint() {
-    if (currentStamp) {
-        hint.classList.add('hidden');
-    } else {
-        hint.classList.remove('hidden');
-    }
+    hint.classList.toggle('hidden', !!currentStamp);
 }
 
 // clear button
@@ -610,75 +541,56 @@ function saveAndClose() {
     if (!currentStamp) {
         cellData.delete(currentCellKey);
         renderCellStamp(currentCell, null);
-
         if (typeof deleteStamp === 'function') {
             const parts = currentCellKey.split('_');
-            const monthKey = parts[0];
-            const habitId = parts[1];
-            const day = parts[2];
-
-            deleteStamp(monthKey, habitId, day).catch(error => {
-                console.error('Failed to delete stamp:', error);
-            });
+            deleteStamp(parts[0], parts[1], parts[2]).catch(err => console.error(err));
         }
     } else {
         cellData.set(currentCellKey, currentStamp);
         renderCellStamp(currentCell, currentStamp);
-
         if (typeof saveStamp === 'function') {
             const parts = currentCellKey.split('_');
-            const monthKey = parts[0];
-            const habitId = parts[1];
-            const day = parts[2];
-
-            saveStamp(monthKey, habitId, day, currentStamp).catch(error => {
-                console.error('Failed to save stamp:', error);
-            });
+            saveStamp(parts[0], parts[1], parts[2], currentStamp).catch(err => console.error(err));
         }
     }
 
-    updateChart(); // update chart when stamp changes
+    updateChart();
     closePopup();
 }
 
 function renderCellStamp(cell, stamp) {
     // clear old
     cell.querySelectorAll('.cell-stamp').forEach(s => s.remove());
-
     if (!stamp) {
         cell.classList.remove('has-stamp');
         return;
     }
 
     cell.classList.add('has-stamp');
-
     const el = document.createElement('div');
     el.className = 'cell-stamp';
-    // Use the same % coordinates — position maps 1:1 from popup canvas to cell
     el.style.left = stamp.x + '%';
     el.style.top = stamp.y + '%';
-    // Show ok.png image scaled to cell — larger for better visibility
-    el.style.backgroundImage = 'url("images/ok.png")';
+    el.style.backgroundImage = `url("${getStampSrc()}")`;
     el.style.backgroundSize = 'contain';
     el.style.backgroundRepeat = 'no-repeat';
     el.style.backgroundPosition = 'center';
-    // Increase to 35px for better visibility in the 48px cell
     el.style.width = '35px';
     el.style.height = '35px';
     cell.appendChild(el);
 }
 
-// escape to close any open overlay
+// escape to close overlays
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        if (overlay.classList.contains('open')) {
-            closePopup();
-        }
-        const settingsOverlay = document.getElementById('settingsOverlay');
-        if (settingsOverlay.classList.contains('open')) {
-            settingsOverlay.classList.remove('open');
-            document.body.style.overflow = '';
-        }
+    if (e.key !== 'Escape') return;
+    if (overlay.classList.contains('open')) closePopup();
+    const settingsOverlay = document.getElementById('settingsOverlay');
+    if (settingsOverlay.classList.contains('open')) {
+        settingsOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    if (document.getElementById('pixelEditorOverlay').classList.contains('open')) {
+        if (typeof closePixelEditor === 'function') closePixelEditor();
     }
 });
 
@@ -687,8 +599,8 @@ document.addEventListener('keydown', (e) => {
 function showSkeletonRows(tableBody, monthKey) {
     tableBody.innerHTML = '';
     const daysInMonth = getDaysInMonth(viewYear, viewMonth);
-
     const fragment = document.createDocumentFragment();
+
     for (let i = 0; i < 3; i++) {
         const row = document.createElement('tr');
         row.className = 'skeleton-row';
@@ -703,12 +615,10 @@ function showSkeletonRows(tableBody, monthKey) {
             td.className = 'day-cell';
             row.appendChild(td);
         }
-
         fragment.appendChild(row);
     }
-    tableBody.appendChild(fragment);
 
-    // hide empty state while loading
+    tableBody.appendChild(fragment);
     const emptyState = document.getElementById('empty-state');
     if (emptyState) emptyState.remove();
 }
@@ -744,9 +654,7 @@ function initChart() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false
-                },
+                legend: { display: false },
                 tooltip: {
                     backgroundColor: '#2c2820',
                     titleColor: '#fffef9',
@@ -816,43 +724,50 @@ function updateChart() {
 
     const daysInMonth = getDaysInMonth(viewYear, viewMonth);
     const currentMonthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
-
-    // count total habits for this month (exclude skeleton rows)
     const tableBody = document.getElementById('tableBody');
-    const visibleHabits = Array.from(tableBody.querySelectorAll('tr')).filter(row => {
-        return !row.classList.contains('skeleton-row') &&
-            row.dataset.month === currentMonthKey &&
-            row.querySelector('.habit-text');
-    });
+
+    const visibleHabits = Array.from(tableBody.querySelectorAll('tr')).filter(row =>
+        !row.classList.contains('skeleton-row') &&
+        row.dataset.month === currentMonthKey &&
+        row.querySelector('.habit-text')
+    );
     const totalHabits = visibleHabits.length;
 
-    // update labels if month changed
     progressChart.data.labels = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-    // count completed habits per day for CURRENT viewing month only
     const dailyCounts = new Array(daysInMonth).fill(0);
-
-    // iterate through all stamps in cellData
     cellData.forEach((stamp, cellKey) => {
-        // cellKey format: "YYYY-MM_row-timestamp_dayNumber"
         if (cellKey.startsWith(currentMonthKey)) {
             const parts = cellKey.split('_');
             const day = parseInt(parts[parts.length - 1]);
-            if (day >= 1 && day <= daysInMonth) {
-                dailyCounts[day - 1]++;
-            }
+            if (day >= 1 && day <= daysInMonth) dailyCounts[day - 1]++;
         }
     });
 
-    // set Y-axis max to total number of habits (or at least 1)
     progressChart.options.scales.y.suggestedMax = Math.max(totalHabits, 1);
-
-    // update chart data
     progressChart.data.datasets[0].data = dailyCounts;
     progressChart.update();
 }
 
-// initialize chart on page load
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initChart, 200);
 });
+
+// init stamp system after auth is ready
+
+const _stampInitInterval = setInterval(() => {
+    if (typeof auth !== 'undefined' && auth.currentUser) {
+        clearInterval(_stampInitInterval);
+        if (typeof initStampSystem === 'function') initStampSystem();
+    }
+}, 200);
+
+// also hook into auth state change in case currentUser isn't set synchronously
+if (typeof auth !== 'undefined') {
+    auth.onAuthStateChanged(user => {
+        if (user && typeof initStampSystem === 'function') {
+            clearInterval(_stampInitInterval);
+            initStampSystem();
+        }
+    });
+}

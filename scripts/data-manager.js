@@ -158,6 +158,12 @@ async function loadStamps(monthKey) {
 
 // load habits and stamps for current viewing month
 async function loadUserData() {
+
+    // ensure custom stamp is loaded before rendering anything
+    if (typeof loadCustomStamp === 'function' && window._activeStampUrl === undefined) {
+        await loadCustomStamp();
+    }
+
     const monthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}`;
     const tableBody = document.getElementById('tableBody');
 

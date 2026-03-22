@@ -56,7 +56,6 @@
                 <canvas id="progressChart"></canvas>
             </div>
         </div>
-
     </div>
 
     <!-- settings popup modal -->
@@ -73,6 +72,16 @@
                     <p class="setting-description">Simple mode: Click to instantly toggle stamp. Manual mode: Open popup
                         to place stamp precisely.</p>
                 </div>
+                <div class="setting-item">
+                    <label>Your Stamp</label>
+                    <div class="stamp-preview-row">
+                        <div class="stamp-preview-box" id="activeStampPreview"></div>
+                        <button id="openPixelEditor" class="btn-secondary">Draw custom stamp</button>
+                        <button id="resetToDefault" class="btn-secondary">Use default</button>
+                    </div>
+                    <p class="setting-description">Draw a 16×16 pixel stamp. This replaces the default stamp everywhere.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
@@ -87,16 +96,12 @@
                 </div>
                 <button class="stamp-popup-close" id="popupClose">✕</button>
             </div>
-
-            <!-- stamp canvas -->
             <div class="stamp-canvas-area" id="stampCanvas">
                 <div class="canvas-hint" id="canvasHint">
                     <div class="hint-icon">💡</div>
                     <div class="hint-text">Click anywhere to place your stamp</div>
                 </div>
             </div>
-
-            <!-- actions -->
             <div class="stamp-popup-actions">
                 <button class="btn-primary" id="popupSave">Save</button>
                 <button class="btn-secondary" id="popupClear">Clear</button>
@@ -104,6 +109,37 @@
             </div>
         </div>
     </div>
+
+    <!-- pixel editor overlay -->
+    <div class="pixel-editor-overlay" id="pixelEditorOverlay">
+        <div class="pixel-editor-popup">
+            <div class="pixel-editor-header">
+                <span class="pixel-editor-title">Draw your stamp</span>
+                <button class="stamp-popup-close" id="pixelEditorClose">✕</button>
+            </div>
+            <div class="pixel-editor-body">
+                <canvas id="pixelCanvas" width="256" height="256"></canvas>
+                <div class="pixel-editor-tools">
+                    <div class="tool-row">
+                        <label>Color</label>
+                        <div class="color-swatches" id="colorSwatches"></div>
+                    </div>
+                    <div class="tool-row">
+                        <label>Tool</label>
+                        <div class="tool-btns">
+                            <button class="tool-btn active" id="toolPencil">✏️ Draw</button>
+                            <button class="tool-btn" id="toolEraser">⬜ Erase</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pixel-editor-actions">
+                <button class="btn-primary" id="pixelEditorSave">Save stamp</button>
+                <button class="btn-secondary" id="pixelEditorClear">Clear</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer">
         <div class="footer-inner">
             <div class="footer-left">
@@ -116,11 +152,13 @@
         </div>
         <div class="footer-bottom">© 2026 Daily Stamps</div>
     </footer>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="scripts/firebase-config.js"></script>
     <script src="scripts/auth.js"></script>
+    <script src="scripts/pixel-editor.js"></script>
     <script src="scripts/data-manager.js"></script>
     <script src="scripts/script.js"></script>
 </body>
