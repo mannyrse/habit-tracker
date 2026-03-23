@@ -1080,12 +1080,18 @@ body.landing {
     color: var(--ink);
 }
 
+.stamp-editor-section {
+    padding: 80px 24px;
+    border-top: 1px solid var(--grid);
+    background: var(--cream);
+}
+
 /* features section */
 
 .features {
     padding: 80px 24px;
     border-top: 1px solid var(--grid);
-    background: var(--cream);
+    background: var(--paper);
 }
 
 .features-inner {
